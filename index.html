@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EntrenamentApp</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>EntrenamentApp</h1>
+    <p>El teu entrenament, al teu ritme.</p>
+  </header>
+
+  <main>
+    <section class="data-entrenament">
+      <label for="data">Data de l'entrenament</label>
+      <div class="calendari-personal">
+  <div class="capcalera-calendari">
+    <button type="button" id="mes-anterior">‹</button>
+    <h3 id="mes-any"></h3>
+    <button type="button" id="mes-seguent">›</button>
+  </div>
+
+  <div id="calendari" class="graella-calendari"></div>
+
+  <input type="date" id="data" hidden>
+  </div>
+    </section>
+    <section id="ultim-entrenament" class="referencia-entrenament" hidden>
+    </section>
+
+    <section>
+      <h2>Entrenament del dia</h2>
+      <div id="llista-exercicis"></div>
+    </section>
+
+    <section class="seccio-biblioteca">
+      <h2>Afegir al dia</h2>
+      <p>Selecciona un exercici de la biblioteca per afegir-lo a aquesta sessió.</p>
+      <div id="selector-biblioteca"></div>
+    </section>
+
+    <section class="seccio-biblioteca">
+      <h2>Biblioteca d'exercicis</h2>
+      <p>Aquí pots preparar i mantenir els teus exercicis habituals.</p>
+
+      <form id="formulari-exercici">
+        <input type="hidden" id="id-exercici">
+
+        <label for="nom-exercici">Nom de l'exercici</label>
+        <input
+          type="text"
+          id="nom-exercici"
+          placeholder="Ex. 10R × 1 RMU EMOM"
+          required
+        >
+
+        <label for="detall-exercici">Detall (opcional)</label>
+        <input
+          type="text"
+          id="detall-exercici"
+          placeholder="Ex. 1 repetició per sèrie"
+        >
+
+        <label for="total-series">Nombre de sèries</label>
+        <input
+          type="number"
+          id="total-series"
+          min="1"
+          max="200"
+          value="10"
+          required
+        >
+
+<fieldset class="camps-personalitzats">
+  <legend>Dades que vull registrar a cada sèrie</legend>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="temps">
+    Temps
+  </label>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="pes">
+    Pes
+  </label>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="repeticions">
+    Repeticions
+  </label>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="variant">
+    Goma / variant
+  </label>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="distancia">
+    Distància
+  </label>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="comentari">
+    Comentari
+  </label>
+
+  <label>
+    <input type="checkbox" name="camps-exercici" value="rpe">
+    RPE (percepció de l'esforç)
+  </label>
+</fieldset>
+
+        <button type="submit" class="boto-fet" id="boto-desar-exercici">
+          Afegir a la biblioteca
+        </button>
+
+        <button type="button" id="boto-cancel-lar" class="boto-desfer" hidden>
+          Cancel·lar edició
+        </button>
+      </form>
+
+      <div id="llista-biblioteca"></div>
+    </section>
+  </main>
+<section class="seccio-biblioteca">
+  <h2>Còpia de seguretat</h2>
+  <p>
+    Desa una còpia de la biblioteca i de tots els entrenaments
+    per poder recuperar-los si cal.
+  </p>
+
+  <div class="accions-biblioteca">
+    <button type="button" id="boto-exportar" class="boto-fet">
+      Exportar còpia de seguretat
+    </button>
+
+    <button type="button" id="boto-importar" class="boto-secundari">
+      Importar còpia de seguretat
+    </button>
+
+    <input
+      type="file"
+      id="fitxer-importacio"
+      accept=".json,application/json"
+      hidden
+    >
+  </div>
+</section>
+  <script src="app.js"></script>
+</body>
+</html>

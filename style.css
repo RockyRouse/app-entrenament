@@ -1,0 +1,383 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f4f7;
+  color: #20252b;
+}
+
+header {
+  background: #202c3c;
+  color: white;
+  padding: 24px 20px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+}
+
+header p {
+  margin: 0;
+  color: #d1d9e2;
+}
+
+main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.data-entrenament {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+input[type="date"] {
+  padding: 12px;
+  border: 1px solid #cbd2da;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+}
+
+h2 {
+  margin-bottom: 16px;
+}
+
+.exercici {
+  background: white;
+  padding: 18px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px #0000000d;
+}
+
+.exercici h3 {
+  margin: 0 0 8px;
+}
+
+.exercici p {
+  color: #626d79;
+  margin: 0 0 14px;
+}
+
+.comptador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progres {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.boto-fet {
+  background: #24734b;
+  color: white;
+}
+
+.boto-desfer {
+  background: #e7ebef;
+  color: #20252b;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: 14px;
+  }
+
+  .exercici {
+    padding: 15px;
+  }
+}
+
+/* Noves seccions de la biblioteca */
+
+.seccio-biblioteca {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #d5dbe2;
+}
+
+.seccio-biblioteca > p {
+  line-height: 1.5;
+  color: #626d79;
+}
+
+#formulari-exercici {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 18px;
+  margin: 16px 0;
+  background: white;
+  border-radius: 12px;
+}
+
+#formulari-exercici input:not([type="hidden"]),
+#selector-biblioteca select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #cbd2da;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+}
+
+#formulari-exercici label {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+#selector-biblioteca {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.targeta-biblioteca {
+  background: white;
+  padding: 16px;
+  margin: 12px 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px #0000000d;
+}
+
+.targeta-biblioteca h3 {
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.accions-biblioteca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.accions-biblioteca button {
+  font-size: 14px;
+}
+
+.boto-secundari {
+  background: #e7ebef;
+  color: #20252b;
+}
+
+.boto-eliminar {
+  background: #fbe8e8;
+  color: #9b2525;
+}
+
+.missatge-buit {
+  color: #626d79;
+  padding: 12px 0;
+}
+
+#boto-cancel-lar[hidden] {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .accions-biblioteca button {
+    flex: 1;
+  }
+}
+.registres-series {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.registres-series h4 {
+  margin: 0 0 10px;
+}
+
+.registre-serie {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.registre-serie input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.camps-personalitzats {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 14px;
+  margin: 16px 0;
+}
+
+.camps-personalitzats legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.camps-personalitzats label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.camps-personalitzats input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+/* Alineació de les opcions de registre */
+.camps-personalitzats {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 16px;
+}
+
+.camps-personalitzats legend {
+  padding: 0 8px;
+  font-weight: 600;
+}
+
+.camps-personalitzats label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin: 12px 0;
+  line-height: 1.4;
+}
+
+.camps-personalitzats input[type="checkbox"] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+}
+/* Referència de l'últim entrenament */
+.referencia-entrenament:not([hidden]) {
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: #f0f4f8;
+  border-left: 4px solid #527da5;
+  border-radius: 8px;
+}
+
+.referencia-entrenament h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #34536f;
+}
+
+.referencia-entrenament ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.referencia-entrenament li {
+  margin: 5px 0;
+  color: #344454;
+}
+/* Calendari personalitzat */
+.calendari-personal {
+  margin-top: 12px;
+}
+
+.capcalera-calendari {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.capcalera-calendari h3 {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.capcalera-calendari button {
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.graella-calendari {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.dia-setmana {
+  text-align: center;
+  font-weight: bold;
+  padding: 6px 0;
+}
+
+.dia-calendari {
+  position: relative;
+  min-height: 42px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.dia-calendari:hover {
+  background: #edf3f8;
+}
+
+.dia-calendari.seleccionat {
+  border: 2px solid #527da5;
+  font-weight: bold;
+}
+
+.dia-calendari.te-entrenament::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #269653;
+}
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+}

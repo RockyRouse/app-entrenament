@@ -708,6 +708,9 @@ mostrarBiblioteca();
 const botoExportar = document.getElementById("boto-exportar");
 const botoImportar = document.getElementById("boto-importar");
 const fitxerImportacio = document.getElementById("fitxer-importacio");
+const botoExportarBiblioteca = document.getElementById("boto-exportar-biblioteca");
+const botoImportarBiblioteca = document.getElementById("boto-importar-biblioteca");
+const fitxerImportacioBiblioteca = document.getElementById("fitxer-importacio-biblioteca");
 
 botoExportar.addEventListener("click", () => {
   const copia = {
@@ -820,5 +823,105 @@ fitxerImportacio.addEventListener("change", async () => {
   } finally {
     // Permet tornar a seleccionar el mateix fitxer.
     fitxerImportacio.value = "";
+  }
+});
+botoExportarBiblioteca.addEventListener("click", () => {
+  const copia = {
+    versio: 1,
+    tipus: "biblioteca-entrenaments",
+    dataExportacio: new Date().toISOString(),
+    biblioteca: biblioteca
+  };
+
+  const contingut = JSON.stringify(copia, null, 2);
+  const fitxer = new Blob([contingut], { type: "application/json" });
+  const url = URL.createObjectURL(fitxer);
+
+  const enllac = document.createElement("a");
+  const dataAvui = new Date().toISOString().slice(0, 10);
+
+  enllac.href = url;
+  enllac.download = `biblioteca-entrenaments-${dataAvui}.json`;
+
+  document.body.appendChild(enllac);
+  enllac.click();
+  enllac.remove();
+
+  URL.revokeObjectURL(url);
+});
+botoImportarBiblioteca.addEventListener("click", () => {
+  fitxerImportacioBiblioteca.click();
+});
+
+fitxerImportacioBiblioteca.addEventListener("change", async () => {
+  const fitxer = fitxerImportacioBiblioteca.files[0];
+
+  if (!fitxer) return;
+
+  try {
+    const textFitxer = await fitxer.text();
+    const copia = JSON.parse(textFitxer);
+
+    if (
+      !copia ||
+      copia.versio !== 1 ||
+      copia.tipus !== "biblioteca-entrenaments" ||
+      !Array.isArray(copia.biblioteca)
+    ) {
+      throw new Error("El fitxer no té el format de biblioteca esperat.");
+    }
+
+    const bibliotecaValida = copia.biblioteca.every(ex =>
+      ex &&
+      typeof ex.id === "string" &&
+      typeof ex.nom === "string" &&
+      typeof ex.detall === "string" &&
+      Number.isInteger(ex.seriesTotals) &&
+      ex.seriesTotals >= 1 &&
+      ex.seriesTotals <= 200
+    );
+
+    if (!bibliotecaValida) {
+      throw new Error("La biblioteca conté exercicis no vàlids.");
+    }
+
+    const ids = copia.biblioteca.map(ex => ex.id);
+
+    if (new Set(ids).size !== ids.length) {
+      throw new Error("La biblioteca conté identificadors duplicats.");
+    }
+
+    const continuar = confirm(
+      "Aquesta operació substituirà la biblioteca actual, però NO modificarà els entrenaments registrats. Continuem?"
+    );
+
+    if (!continuar) return;
+
+    const bibliotecaAnterior = biblioteca;
+
+    try {
+      biblioteca = copia.biblioteca;
+      desarBiblioteca();
+    } catch (error) {
+      biblioteca = bibliotecaAnterior;
+      desarBiblioteca();
+
+      throw new Error(
+        "No s'ha pogut desar la biblioteca importada. Pot ser que el navegador no tingui prou espai."
+      );
+    }
+
+    cancel·larEdicio();
+    mostrarBiblioteca();
+    mostrarSelector();
+    mostrarExercicis();
+
+    alert("Biblioteca importada correctament. Els entrenaments registrats no s'han modificat.");
+
+  } catch (error) {
+    alert("No s'ha pogut importar la biblioteca: " + error.message);
+
+  } finally {
+    fitxerImportacioBiblioteca.value = "";
   }
 });

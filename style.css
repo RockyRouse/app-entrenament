@@ -424,3 +424,8 @@ button:disabled {
 .exercici.en-curs {
   border-left: 4px solid #527da5;
 }
+.seccio-entrenament {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #d5dbe2;
+}

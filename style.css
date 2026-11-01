@@ -26,7 +26,7 @@ header p {
 }
 
 main {
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -52,19 +52,21 @@ h2 {
 
 .exercici {
   background: white;
-  padding: 18px;
+  padding: 12px 14px;
   margin-bottom: 14px;
   border-radius: 12px;
   box-shadow: 0 2px 6px #0000000d;
 }
 
 .exercici h3 {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .exercici p {
   color: #626d79;
-  margin: 0 0 14px;
+  margin: 0 0 8px;
 }
 
 .comptador {
@@ -217,10 +219,11 @@ button:disabled {
 
 .registre-serie {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 10px;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 5px;
   font-size: 0.9rem;
+  align-items: center;
 }
 
 .registre-serie input {
@@ -380,4 +383,44 @@ button:disabled {
     font-size: 1.5rem;
     line-height: 1.2;
   }
+}
+
+/* Capçalera compacta de l'aplicació */
+.capcalera-app {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+}
+
+.capcalera-app h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.boto-menu {
+  background: transparent;
+  color: white;
+  font-size: 1.5rem;
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.data-entrenament[hidden] {
+  display: none;
+}
+.registre-serie strong {
+  min-width: 65px;
+  font-size: 0.85rem;
+}
+.registre-serie label {
+  flex: 1;
+  min-width: 0;
+}
+.exercici.completat {
+  border-left: 4px solid #24734b;
+}
+.exercici.en-curs {
+  border-left: 4px solid #527da5;
 }

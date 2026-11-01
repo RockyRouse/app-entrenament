@@ -276,7 +276,7 @@ function mostrarUltimEntrenament() {
 function mostrarExercicis() {
   llista.innerHTML = "";
   const entrenament = obtenirEntrenament();
-  mostrarUltimEntrenament();
+  
 
   if (entrenament.exercicis.length === 0) {
     llista.innerHTML =
@@ -336,8 +336,7 @@ const campsSeries = Array.from(
     <div class="registre-serie">
       <strong>Sèrie ${index + 1}</strong>
       ${campsConfigurats.map(camp => `
-        <label>
-          ${definicioCamps[camp]}
+        <label aria-label="${definicioCamps[camp]}">
           <input
             type="text"
             data-serie="${index}"
@@ -350,8 +349,19 @@ const campsSeries = Array.from(
     </div>
   `
 ).join("");
+     const blocRegistres = campsConfigurats.length > 0
+     ? `
+    <div class="registres-series">
+      ${campsSeries}
+    </div>
+    `
+  : "";
     const targeta = document.createElement("article");
-    targeta.className = "exercici";
+targeta.className = acabat
+  ? "exercici completat"
+  : fetes > 0
+    ? "exercici en-curs"
+    : "exercici";
 
     targeta.innerHTML = `
       <h3>${escaparHTML(ex.nom)}</h3>
@@ -368,10 +378,7 @@ const campsSeries = Array.from(
         </div>
             </div>
 
-      <div class="registres-series">
-        <h4>Registre per sèrie</h4>
-        ${campsSeries}
-      </div>
+      ${blocRegistres}
 
       
        
@@ -923,5 +930,90 @@ fitxerImportacioBiblioteca.addEventListener("change", async () => {
 
   } finally {
     fitxerImportacioBiblioteca.value = "";
+  }
+});
+
+// Obrir i tancar el menú principal
+const botoMenu = document.getElementById("boto-menu");
+const menuPrincipal = document.getElementById("menu-principal");
+
+botoMenu.addEventListener("click", () => {
+
+  // Comprovem si hi ha algun apartat secundari obert
+  const panellObert =
+  !panellBiblioteca.hidden ||
+  !panellGestioBiblioteca.hidden ||
+  !panellUltimEntrenament.hidden ||
+  !panellCalendari.hidden;
+
+  // Si hi ha un apartat obert, tornem directament a l'inici
+  if (panellObert) {
+    tancarPanellsSecundaris();
+    menuPrincipal.hidden = true;
+    botoMenu.setAttribute("aria-expanded", "false");
+    return;
+  }
+
+  // Si no hi ha cap apartat obert, obrim o tanquem el menú
+  const menuObert = !menuPrincipal.hidden;
+
+  menuPrincipal.hidden = menuObert;
+  botoMenu.setAttribute("aria-expanded", String(!menuObert));
+});
+
+// Elements del menú i dels panells
+const botoBiblioteca = document.getElementById("boto-biblioteca");
+const panellBiblioteca = document.getElementById("panell-biblioteca");
+
+const botoGestioDades = document.getElementById("boto-gestio-dades");
+const panellGestioBiblioteca = document.getElementById("panell-gestio-biblioteca");
+const panellCopiaSeguretat = document.getElementById("panell-copia-seguretat");
+
+const botoUltimEntrenament = document.getElementById("boto-ultim-entrenament");
+const panellUltimEntrenament = document.getElementById("ultim-entrenament");
+const botoCalendari = document.getElementById("boto-calendari");
+const panellCalendari = document.getElementById("panell-calendari");
+
+
+// Tancar tots els panells secundaris
+function tancarPanellsSecundaris() {
+  panellBiblioteca.hidden = true;
+  panellGestioBiblioteca.hidden = true;
+  panellCopiaSeguretat.hidden = true;
+  panellUltimEntrenament.hidden = true;
+  panellCalendari.hidden = true;
+}
+
+// Obrir i tancar el calendari
+botoCalendari.addEventListener("click", () => {
+  const mostrar = panellCalendari.hidden;
+
+  tancarPanellsSecundaris();
+  panellCalendari.hidden = !mostrar;
+});
+
+
+// Obrir i tancar la biblioteca
+botoBiblioteca.addEventListener("click", () => {
+  const mostrar = panellBiblioteca.hidden;
+  tancarPanellsSecundaris();
+  panellBiblioteca.hidden = !mostrar;
+});
+
+// Obrir i tancar la gestió de dades
+botoGestioDades.addEventListener("click", () => {
+  const mostrar = panellGestioBiblioteca.hidden;
+  tancarPanellsSecundaris();
+  panellGestioBiblioteca.hidden = !mostrar;
+  panellCopiaSeguretat.hidden = !mostrar;
+});
+
+// Obrir i tancar l'últim entrenament
+botoUltimEntrenament.addEventListener("click", () => {
+  const mostrar = panellUltimEntrenament.hidden;
+  tancarPanellsSecundaris();
+
+  if (mostrar) {
+    mostrarUltimEntrenament();
   }
 });

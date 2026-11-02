@@ -933,34 +933,6 @@ fitxerImportacioBiblioteca.addEventListener("change", async () => {
   }
 });
 
-// Obrir i tancar el menú principal
-const botoMenu = document.getElementById("boto-menu");
-const menuPrincipal = document.getElementById("menu-principal");
-
-botoMenu.addEventListener("click", () => {
-
-  // Comprovem si hi ha algun apartat secundari obert
-  const panellObert =
-  !panellBiblioteca.hidden ||
-  !panellGestioBiblioteca.hidden ||
-  !panellUltimEntrenament.hidden ||
-  !panellCalendari.hidden;
-
-  // Si hi ha un apartat obert, tornem directament a l'inici
-  if (panellObert) {
-    tancarPanellsSecundaris();
-    menuPrincipal.hidden = true;
-    botoMenu.setAttribute("aria-expanded", "false");
-    return;
-  }
-
-  // Si no hi ha cap apartat obert, obrim o tanquem el menú
-  const menuObert = !menuPrincipal.hidden;
-
-  menuPrincipal.hidden = menuObert;
-  botoMenu.setAttribute("aria-expanded", String(!menuObert));
-});
-
 // Elements del menú i dels panells
 const botoBiblioteca = document.getElementById("boto-biblioteca");
 const panellBiblioteca = document.getElementById("panell-biblioteca");
@@ -984,28 +956,52 @@ function tancarPanellsSecundaris() {
   panellCalendari.hidden = true;
 }
 
+function actualitzarMenuActiu(botoActiu = null) {
+  const botonsMenu = [
+    botoCalendari,
+    botoUltimEntrenament,
+    botoBiblioteca,
+    botoGestioDades
+  ];
+
+  botonsMenu.forEach(boto => {
+    boto.classList.remove("actiu");
+  });
+
+  if (botoActiu) {
+    botoActiu.classList.add("actiu");
+  }
+}
+
 // Obrir i tancar el calendari
 botoCalendari.addEventListener("click", () => {
   const mostrar = panellCalendari.hidden;
 
   tancarPanellsSecundaris();
   panellCalendari.hidden = !mostrar;
-});
 
+  actualitzarMenuActiu(mostrar ? botoCalendari : null);
+});
 
 // Obrir i tancar la biblioteca
 botoBiblioteca.addEventListener("click", () => {
   const mostrar = panellBiblioteca.hidden;
+
   tancarPanellsSecundaris();
   panellBiblioteca.hidden = !mostrar;
+
+  actualitzarMenuActiu(mostrar ? botoBiblioteca : null);
 });
 
 // Obrir i tancar la gestió de dades
 botoGestioDades.addEventListener("click", () => {
   const mostrar = panellGestioBiblioteca.hidden;
+
   tancarPanellsSecundaris();
   panellGestioBiblioteca.hidden = !mostrar;
   panellCopiaSeguretat.hidden = !mostrar;
+
+  actualitzarMenuActiu(mostrar ? botoGestioDades : null);
 });
 
 // Obrir i tancar l'últim entrenament
@@ -1016,4 +1012,6 @@ botoUltimEntrenament.addEventListener("click", () => {
   if (mostrar) {
     mostrarUltimEntrenament();
   }
+
+  actualitzarMenuActiu(mostrar ? botoUltimEntrenament : null);
 });

@@ -389,7 +389,7 @@ button:disabled {
 .capcalera-app {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 10px 16px;
 }
 
@@ -447,4 +447,11 @@ button:disabled {
    background: #e5eaf0;
    color: #202c3c;
   }
+}
+
+/* Opció activa del menú */
+.opcions-menu button.actiu {
+  background: #527da5;
+  color: white;
+  border-color: #527da5;
 }

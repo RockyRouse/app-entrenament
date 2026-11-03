@@ -1,25 +1,33 @@
-
 const CLAU_ENTRENAMENTS = "entrenamentApp";
 const CLAU_BIBLIOTECA = "entrenamentBiblioteca";
 
 const exercicisInicials = [
   {
     id: "ex-rmu",
-    nom: "10R × 1 RMU",
-    detall: "1 repetició per sèrie",
-    seriesTotals: 10
+    nom: "Ring Muscle Up",
+        seriesTotals: 10,
+    repeticions: 1,
+    metode: "EMOM",
+    durada: 40,
+    unitatDurada: "segons"
   },
   {
     id: "ex-pullup",
-    nom: "5R × 10 Pull-up",
-    detall: "10 repeticions per sèrie",
-    seriesTotals: 5
+    nom: "Pull-up",
+    seriesTotals: 5,
+    repeticions: 10,
+    metode: "",
+    durada: null,
+    unitatDurada: "minuts"
   },
   {
     id: "ex-highpull",
-    nom: "6R × 2 High Pull",
-    detall: "2 repeticions per sèrie",
-    seriesTotals: 6
+    nom: "High Pull",
+    seriesTotals: 6,
+    repeticions: 2,
+    metode: "",
+    durada: null,
+    unitatDurada: "minuts"
   }
 ];
 const definicioCamps = {
@@ -37,6 +45,10 @@ const calendari = document.getElementById("calendari");
 const mesAny = document.getElementById("mes-any");
 const botoMesAnterior = document.getElementById("mes-anterior");
 const botoMesSeguent = document.getElementById("mes-seguent");
+const estatEntrenament = document.getElementById("estat-entrenament");
+const textEstatEntrenament = document.getElementById("text-estat-entrenament");
+const botoCompletarEntrenament = document.getElementById("boto-completar-entrenament");
+const botoDesbloquejarEntrenament = document.getElementById("boto-desbloquejar-entrenament");
 
 let anyCalendari;
 let mesCalendari;
@@ -139,8 +151,11 @@ const llistaBiblioteca = document.getElementById("llista-biblioteca");
 const formulari = document.getElementById("formulari-exercici");
 const campId = document.getElementById("id-exercici");
 const campNom = document.getElementById("nom-exercici");
-const campDetall = document.getElementById("detall-exercici");
 const campTotal = document.getElementById("total-series");
+const campRepeticions = document.getElementById("repeticions-exercici");
+const campMetode = document.getElementById("metode-exercici");
+const campDurada = document.getElementById("durada-exercici");
+const campUnitatDurada = document.getElementById("unitat-durada");
 const botoDesar = document.getElementById("boto-desar-exercici");
 const botoCancelar = document.getElementById("boto-cancel-lar");
 const campsExercici = document.querySelectorAll(
@@ -199,7 +214,6 @@ function migrarEntrenamentsAntics() {
         instanciaId: crearId(),
         exerciciId: exAntic.id,
         nom: exAntic.nom,
-        detall: exAntic.detall,
         seriesTotals: exAntic.seriesTotals,
         seriesFetes: Math.max(
           0,
@@ -231,11 +245,83 @@ function obtenirEntrenament() {
 
   if (!entrenaments[data] ||
       !Array.isArray(entrenaments[data].exercicis)) {
-    entrenaments[data] = { exercicis: [] };
+    entrenaments[data] = {
+      exercicis: [],
+      completat: false
+    };
+  }
+
+  // Els entrenaments antics també reben l'estat inicial.
+  if (typeof entrenaments[data].completat !== "boolean") {
+    entrenaments[data].completat = false;
   }
 
   return entrenaments[data];
 }
+
+// Actualitzem els controls segons l'estat de l'entrenament.
+function mostrarEstatEntrenament() {
+  const entrenament = obtenirEntrenament();
+  const completat = entrenament.completat;
+
+  textEstatEntrenament.textContent = completat
+  ? "Entrenament completat ✓"
+  : "Entrenament en curs";
+
+   textEstatEntrenament.classList.toggle("estat-completat", completat);
+
+  botoCompletarEntrenament.hidden = completat;
+  botoDesbloquejarEntrenament.hidden = !completat;
+
+  botoCompletarEntrenament.textContent = "🔓";
+  botoCompletarEntrenament.title = "Entrenament obert · Clica per bloquejar";
+  botoCompletarEntrenament.setAttribute(
+    "aria-label",
+    "Entrenament obert · Clica per bloquejar"
+  );
+
+  botoDesbloquejarEntrenament.textContent = "🔒";
+  botoDesbloquejarEntrenament.title = "Entrenament bloquejat · Clica per desbloquejar";
+  botoDesbloquejarEntrenament.setAttribute(
+    "aria-label",
+    "Entrenament bloquejat · Clica per desbloquejar"
+  );
+}
+
+// Marquem l'entrenament com a completat.
+botoCompletarEntrenament.addEventListener("click", () => {
+  const entrenament = obtenirEntrenament();
+
+  if (!confirm("Vols marcar aquest entrenament com a completat?")) {
+    return;
+  }
+
+  entrenament.completat = true;
+
+  desarEntrenaments();
+  mostrarEstatEntrenament();
+  mostrarExercicis();
+  mostrarSelector();
+  mostrarBiblioteca();
+});
+
+// Desbloquegem l'entrenament.
+botoDesbloquejarEntrenament.addEventListener("click", () => {
+  const entrenament = obtenirEntrenament();
+
+  if (!confirm("Vols desbloquejar aquest entrenament per poder editar-lo?")) {
+    return;
+  }
+
+  entrenament.completat = false;
+
+  desarEntrenaments();
+  mostrarEstatEntrenament();
+  mostrarExercicis();
+  mostrarSelector();
+  mostrarBiblioteca();
+});
+
 // Mostra els exercicis de l'últim entrenament anterior a la data seleccionada.
 function mostrarUltimEntrenament() {
   const contenidor = document.getElementById("ultim-entrenament");
@@ -280,7 +366,7 @@ const exercicisDesplegats = new Set();
 function mostrarExercicis() {
   llista.innerHTML = "";
   const entrenament = obtenirEntrenament();
-  
+  const bloquejat = entrenament.completat;
 
   if (entrenament.exercicis.length === 0) {
     llista.innerHTML =
@@ -338,7 +424,7 @@ const campsSeries = Array.from(
   { length: total },
   (_, index) => `
     <div class="registre-serie">
-      <strong>Sèrie ${index + 1}</strong>
+      <strong>Ronda ${index + 1}</strong>
       ${campsConfigurats.map(camp => `
         <label aria-label="${definicioCamps[camp]}">
           <input
@@ -346,6 +432,7 @@ const campsSeries = Array.from(
             data-serie="${index}"
             data-camp="${camp}"
             value="${escaparHTML(ex.registresSeries[index][camp] || "")}"
+            ${bloquejat ? "disabled" : ""}
             placeholder="Anota ${definicioCamps[camp].toLowerCase()}"
           >
         </label>
@@ -373,10 +460,10 @@ targeta.innerHTML = `
   <div class="capcalera-exercici">
     <div>
       <h3>${escaparHTML(ex.nom)}</h3>
-      ${acabat
-        ? `<p>${fetes} / ${total} rondes · Completat ✓</p>`
-        : `<p>${escaparHTML(ex.detall || "")}</p>`
-      }
+    ${acabat
+      ? `<p>${fetes} / ${total} rondes · <span class="text-completat">Completat ✓</span></p>`
+      : `<p>${escaparHTML(resumExercici(ex))}</p>`
+     } 
     </div>
 
     ${acabat ? `
@@ -391,28 +478,37 @@ targeta.innerHTML = `
   </div>
 
   <div class="contingut-exercici" ${desplegat ? "" : "hidden"}>
-    ${acabat ? `<p>${escaparHTML(ex.detall || "")}</p>` : ""}
-    <div class="comptador">
-        <span class="progres">${fetes} / ${total} sèries</span>
-        <div>
-          <button class="boto-desfer" data-accio="desfer"
-            ${fetes === 0 ? "disabled" : ""}>−</button>
-          <button class="boto-fet" data-accio="fet"
-            ${acabat ? "disabled" : ""}>
-            ${acabat ? "Completat ✓" : "+ Sèrie feta"}
-          </button>
+        <div class="comptador">
+          <span class="progres">${fetes} / ${total} rondes</span>
+          <div>
+            <button class="boto-desfer" data-accio="desfer"
+              ${fetes === 0 || bloquejat ? "disabled" : ""}>−</button>
+
+           <button class="boto-fet" data-accio="fet"
+              ${acabat || bloquejat ? "disabled" : ""}>
+              ${acabat ? "Completat ✓" : "+ Ronda feta"}
+           </button>
+          </div>
         </div>
-            </div>
 
       ${blocRegistres}
-
+      <div class="notes-exercici">
+        <label>
+          Notes d'aquesta sessió
+          <textarea
+            data-accio="notes"
+            ${bloquejat ? "disabled" : ""}
+            placeholder="Ex. Incrementar pes en el proper entrenament..."
+          >${escaparHTML(ex.notes || "")}</textarea>
+        </label>
+      </div>
       
        
 <div class="accions-biblioteca">
   <button
     class="boto-secundari"
     data-accio="pujar"
-    ${indexEx === 0 ? "disabled" : ""}
+    ${indexEx === 0 || bloquejat ? "disabled" : ""}
     aria-label="Moure exercici amunt"
     title="Moure amunt"
   >↑</button>
@@ -420,13 +516,14 @@ targeta.innerHTML = `
   <button
     class="boto-secundari"
     data-accio="baixar"
-    ${indexEx === entrenament.exercicis.length - 1 ? "disabled" : ""}
+    ${indexEx === entrenament.exercicis.length - 1 || bloquejat ? "disabled" : ""}
     aria-label="Moure exercici avall"
     title="Moure avall"
   >↓</button>
 
   <button class="boto-secundari" data-accio="treure">
     Treure d'aquest dia
+    ${bloquejat ? "disabled" : ""}
   </button>
 </div>
 
@@ -435,7 +532,7 @@ targeta.innerHTML = `
 targeta.querySelectorAll("input[data-camp]").forEach(camp => {
   camp.addEventListener("input", () => {
     const actual = obtenirEntrenament();
-
+    if (actual.completat) return;
     const index = actual.exercicis.findIndex(
       item => item.instanciaId === ex.instanciaId
     );
@@ -466,6 +563,21 @@ targeta.querySelectorAll("input[data-camp]").forEach(camp => {
   });
 });
    
+targeta.querySelector('[data-accio="notes"]').addEventListener("input", event => {
+  const actual = obtenirEntrenament();
+
+  if (actual.completat) return;
+
+  const exerciciActual = actual.exercicis.find(
+    item => item.instanciaId === ex.instanciaId
+  );
+
+  if (!exerciciActual) return;
+
+  exerciciActual.notes = event.target.value;
+  desarEntrenaments();
+});
+
 targeta.querySelectorAll("button").forEach(boto => {
   boto.addEventListener("click", () => {
 
@@ -481,7 +593,7 @@ targeta.querySelectorAll("button").forEach(boto => {
     }
 
     const actual = obtenirEntrenament();
-
+    if (actual.completat) return;
     const index = actual.exercicis.findIndex(
       item => item.instanciaId === ex.instanciaId
     );
@@ -541,13 +653,20 @@ function afegirAlDia(id) {
   if (!ex) return;
 
   const entrenament = obtenirEntrenament();
-
+  if (entrenament.completat) {
+  alert("Aquest entrenament està bloquejat. Desbloqueja'l per afegir exercicis.");
+  return;
+  }
 entrenament.exercicis.push({
   instanciaId: crearId(),
   exerciciId: ex.id,
   nom: ex.nom,
-  detall: ex.detall,
   seriesTotals: ex.seriesTotals,
+  repeticions: ex.repeticions ?? null,
+  metode: ex.metode || "",
+  durada: ex.durada ?? null,
+  unitatDurada: ex.unitatDurada || "segons",
+  notes: "",
   seriesFetes: 0,
   camps: [...(ex.camps || [])],
   registresSeries: Array.from(
@@ -560,10 +679,30 @@ entrenament.exercicis.push({
   mostrarExercicis();
 }
 
+// Construïm un resum de les característiques de l'exercici.
+function resumExercici(ex) {
+  const parts = [`${ex.seriesTotals} rondes`];
+
+  if (ex.repeticions) {
+    parts.push(`${ex.repeticions} repeticions`);
+  }
+
+  if (ex.metode) {
+    parts.push(ex.metode);
+  }
+
+  if (ex.durada) {
+    parts.push(`${ex.durada} ${ex.unitatDurada || "segons"}`);
+  }
+
+  return parts.join(" · ");
+}
+
 // Selector per afegir exercicis al dia.
 function mostrarSelector() {
   selectorBiblioteca.innerHTML = "";
-
+  const entrenament = obtenirEntrenament();
+  const bloquejat = entrenament.completat;
   if (biblioteca.length === 0) {
     selectorBiblioteca.innerHTML =
       '<p class="missatge-buit">La biblioteca és buida. Crea un exercici a sota.</p>';
@@ -577,19 +716,24 @@ function mostrarSelector() {
   biblioteca.forEach(ex => {
     const opcio = document.createElement("option");
     opcio.value = ex.id;
-    opcio.textContent = `${ex.nom} — ${ex.seriesTotals} sèries`;
+    opcio.textContent = `${ex.nom} — ${resumExercici(ex)}`;
     select.appendChild(opcio);
   });
 
   const boto = document.createElement("button");
   boto.type = "button";
   boto.className = "boto-fet";
-  boto.textContent = "Afegir exercici al dia";
+  boto.textContent = bloquejat
+     ? "Entrenament bloquejat"
+     : "Afegir exercici al dia";
+  boto.disabled = bloquejat;
+  select.disabled = bloquejat;
   boto.addEventListener("click", () => afegirAlDia(select.value));
 
   selectorBiblioteca.append(select, boto);
 }
 
+// Mostrem i gestionem la biblioteca.
 // Mostrem i gestionem la biblioteca.
 function mostrarBiblioteca() {
   llistaBiblioteca.innerHTML = "";
@@ -606,10 +750,13 @@ function mostrarBiblioteca() {
 
     targeta.innerHTML = `
       <h3>${escaparHTML(ex.nom)}</h3>
-      <p>${escaparHTML(ex.detall || "")}</p>
-      <p>${ex.seriesTotals} sèries</p>
+      <p>${escaparHTML(resumExercici(ex))}</p>
       <div class="accions-biblioteca">
-        <button class="boto-fet" data-accio="afegir">Afegir al dia</button>
+        <button
+            class="boto-fet"
+            data-accio="afegir"
+            ${obtenirEntrenament().completat ? "disabled" : ""}
+         >Afegir al dia</button>
         <button class="boto-secundari" data-accio="editar">Editar</button>
         <button class="boto-secundari" data-accio="duplicar">Duplicar</button>
         <button class="boto-eliminar" data-accio="eliminar">Eliminar</button>
@@ -623,9 +770,11 @@ function mostrarBiblioteca() {
     targeta.querySelector('[data-accio="editar"]').addEventListener(
       "click", () => prepararEdicio(ex)
     );
+
     targeta.querySelector('[data-accio="duplicar"]').addEventListener(
-     "click", () => duplicarExercici(ex)
+      "click", () => duplicarExercici(ex)
     );
+
     targeta.querySelector('[data-accio="eliminar"]').addEventListener(
       "click", () => eliminarExercici(ex.id)
     );
@@ -639,32 +788,56 @@ formulari.addEventListener("submit", event => {
   event.preventDefault();
 
   const nom = campNom.value.trim();
-  const detall = campDetall.value.trim();
   const total = Number.parseInt(campTotal.value, 10);
+  const repeticions = campRepeticions.value === ""
+    ? null
+    : Number.parseInt(campRepeticions.value, 10);
+  const metode = campMetode.value;
+  const durada = campDurada.value === ""
+    ? null
+    : Number.parseInt(campDurada.value, 10);
+  const unitatDurada = campUnitatDurada.value;
   const campsSeleccionats = Array.from(campsExercici)
-  .filter(camp => camp.checked)
-  .map(camp => camp.value);
+    .filter(camp => camp.checked)
+    .map(camp => camp.value);
+
   if (!nom || !Number.isInteger(total) || total < 1 || total > 200) {
-    alert("Escriu un nom i un nombre de sèries entre 1 i 200.");
+    alert("Escriu un nom i un nombre de rondes entre 1 i 200.");
     return;
   }
+
+  if (repeticions !== null &&
+      (!Number.isInteger(repeticions) || repeticions < 1 || repeticions > 200)) {
+    alert("Les repeticions han de ser entre 1 i 200.");
+    return;
+  }
+
+  if (durada !== null &&
+      (!Number.isInteger(durada) || durada < 1)) {
+    alert("La durada ha de ser un nombre enter positiu.");
+    return;
+  }
+
+  const dadesExercici = {
+    nom,
+    seriesTotals: total,
+    repeticions,
+    metode,
+    durada,
+    unitatDurada,
+    camps: [...campsSeleccionats]
+  };
 
   if (campId.value) {
     const ex = biblioteca.find(item => item.id === campId.value);
     if (ex) {
-      ex.nom = nom;
-      ex.detall = detall;
-      ex.seriesTotals = total;
-      ex.camps = [...campsSeleccionats];
+      Object.assign(ex, dadesExercici);
     }
   } else {
-   biblioteca.push({
-  id: crearId(),
-  nom,
-  detall,
-  seriesTotals: total,
-  camps: [...campsSeleccionats]
-});
+    biblioteca.push({
+      id: crearId(),
+      ...dadesExercici
+    });
   }
 
   desarBiblioteca();
@@ -677,13 +850,19 @@ formulari.addEventListener("submit", event => {
 function prepararEdicio(ex) {
   campId.value = ex.id;
   campNom.value = ex.nom;
-  campDetall.value = ex.detall || "";
   campTotal.value = ex.seriesTotals;
+  campRepeticions.value = ex.repeticions ?? "";
+  campMetode.value = ex.metode || "";
+  campDurada.value = ex.durada ?? "";
+  campUnitatDurada.value = ex.unitatDurada || "segons";
+
   botoDesar.textContent = "Desar canvis";
   botoCancelar.hidden = false;
+
   campsExercici.forEach(camp => {
-  camp.checked = (ex.camps || []).includes(camp.value);
-});
+    camp.checked = (ex.camps || []).includes(camp.value);
+  });
+
   campNom.focus();
   formulari.scrollIntoView({ behavior: "smooth", block: "center" });
 }
@@ -703,11 +882,18 @@ function cancel·larEdicio() {
   formulari.reset();
   campId.value = "";
   campTotal.value = 10;
+
+  campRepeticions.value = "";
+  campMetode.value = "";
+  campDurada.value = "";
+  campUnitatDurada.value = "segons";
+
   botoDesar.textContent = "Afegir a la biblioteca";
   botoCancelar.hidden = true;
+
   campsExercici.forEach(camp => {
-  camp.checked = false;
-});
+    camp.checked = false;
+  });
 }
 
 botoCancelar.addEventListener("click", cancel·larEdicio);
@@ -742,11 +928,15 @@ function escaparHTML(text) {
 }
 
 // En canviar la data, mostrem el registre d'aquell dia.
-campData.addEventListener("change", mostrarExercicis);
+campData.addEventListener("change", () => {
+  mostrarExercicis();
+  mostrarEstatEntrenament();
+});
 
 // Iniciem la pantalla.
 inicialitzarCalendari();
 mostrarExercicis();
+mostrarEstatEntrenament();
 mostrarSelector();
 mostrarBiblioteca();
 // --- Còpies de seguretat ---
@@ -814,7 +1004,6 @@ fitxerImportacio.addEventListener("change", async () => {
       ex &&
       typeof ex.id === "string" &&
       typeof ex.nom === "string" &&
-      typeof ex.detall === "string" &&
       Number.isInteger(ex.seriesTotals) &&
       ex.seriesTotals >= 1 &&
       ex.seriesTotals <= 200
@@ -921,7 +1110,6 @@ fitxerImportacioBiblioteca.addEventListener("change", async () => {
       ex &&
       typeof ex.id === "string" &&
       typeof ex.nom === "string" &&
-      typeof ex.detall === "string" &&
       Number.isInteger(ex.seriesTotals) &&
       ex.seriesTotals >= 1 &&
       ex.seriesTotals <= 200

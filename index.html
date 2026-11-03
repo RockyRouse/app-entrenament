@@ -49,37 +49,59 @@
       <p>Aquí pots preparar i mantenir els teus exercicis habituals.</p>
 
       <form id="formulari-exercici">
-        <input type="hidden" id="id-exercici">
+  <input type="hidden" id="id-exercici">
 
-        <label for="nom-exercici">Nom de l'exercici</label>
-        <input type="text" id="nom-exercici" placeholder="Ex. 10R × 1 RMU EMOM" required>
+  <label for="nom-exercici">Nom de l'exercici</label>
+  <input type="text" id="nom-exercici" placeholder="Ex. Ring Muscle Up" required>
 
-        <label for="detall-exercici">Detall (opcional)</label>
-        <input type="text" id="detall-exercici" placeholder="Ex. 1 repetició per sèrie">
+  <div class="volum-exercici">
+    <div>
+      <label for="total-series">Nombre de rondes</label>
+      <input type="number" id="total-series" min="1" max="200" value="10" required>
+    </div>
 
-        <label for="total-series">Nombre de sèries</label>
-        <input type="number" id="total-series" min="1" max="200" value="10" required>
+    <div>
+      <label for="repeticions-exercici">Repeticions per ronda</label>
+      <input type="number" id="repeticions-exercici" min="1" max="200" placeholder="Opcional">
+    </div>
+  </div>
 
-        <fieldset class="camps-personalitzats">
-          <legend>Dades que vull registrar a cada sèrie</legend>
+  <label for="metode-exercici">Mètode de treball</label>
+  <select id="metode-exercici">
+    <option value="">Sense mètode específic</option>
+    <option value="EMOM">EMOM</option>
+    <option value="AMRAP">AMRAP</option>
+    <option value="For Time">For Time</option>
+    <option value="Tabata">Tabata</option>
+  </select>
 
-          <label><input type="checkbox" name="camps-exercici" value="temps"> Temps</label>
-          <label><input type="checkbox" name="camps-exercici" value="pes"> Pes</label>
-          <label><input type="checkbox" name="camps-exercici" value="repeticions"> Repeticions</label>
-          <label><input type="checkbox" name="camps-exercici" value="variant"> Goma / variant</label>
-          <label><input type="checkbox" name="camps-exercici" value="distancia"> Distància</label>
-          <label><input type="checkbox" name="camps-exercici" value="comentari"> Comentari</label>
-          <label><input type="checkbox" name="camps-exercici" value="rpe"> RPE (percepció de l'esforç)</label>
-        </fieldset>
+  <label for="durada-exercici">Durada / referència temporal (opcional)</label>
+  <div class="durada-exercici">
+    <input type="number" id="durada-exercici" min="1" placeholder="Ex. 40">
+    <select id="unitat-durada">
+      <option value="segons">Segons</option>
+      <option value="minuts">Minuts</option>
+    </select>
+  </div>
 
-        <button type="submit" class="boto-fet" id="boto-desar-exercici">
-          Afegir a la biblioteca
-        </button>
+  <fieldset class="camps-personalitzats">
+    <legend>Dades que vull registrar a cada ronda</legend>
 
-        <button type="button" id="boto-cancel-lar" class="boto-desfer" hidden>
-          Cancel·lar edició
-        </button>
-      </form>
+    <label><input type="checkbox" name="camps-exercici" value="temps"> Temps</label>
+    <label><input type="checkbox" name="camps-exercici" value="pes"> Pes</label>
+    <label><input type="checkbox" name="camps-exercici" value="variant"> Goma / variant</label>
+    <label><input type="checkbox" name="camps-exercici" value="distancia"> Distància</label>
+    <label><input type="checkbox" name="camps-exercici" value="comentari"> Comentari</label>
+  </fieldset>
+
+  <button type="submit" class="boto-fet" id="boto-desar-exercici">
+    Afegir a la biblioteca
+  </button>
+
+  <button type="button" id="boto-cancel-lar" class="boto-desfer" hidden>
+    Cancel·lar edició
+  </button>
+</form>
 
       <div id="llista-biblioteca"></div>
     </section>
@@ -107,9 +129,33 @@
     </section>
 
     <section class="seccio-entrenament">
-  <h2>Entrenament del dia</h2>
+  <div class="capcalera-entrenament">
+    <h2>Entrenament del dia</h2>
+
+    <button
+      type="button"
+      id="boto-completar-entrenament"
+      class="boto-candau"
+      title="Completar i bloquejar entrenament"
+      aria-label="Completar i bloquejar entrenament"
+    >🔒</button>
+
+    <button
+      type="button"
+      id="boto-desbloquejar-entrenament"
+      class="boto-candau"
+      title="Desbloquejar entrenament"
+      aria-label="Desbloquejar entrenament"
+      hidden
+    >🔓</button>
+  </div>
+
+  <div id="estat-entrenament">
+    <span id="text-estat-entrenament"></span>
+  </div>
+
   <div id="llista-exercicis"></div>
-  </section>
+</section>
 
     <section class="seccio-biblioteca">
       <h2>Afegir al dia</h2>

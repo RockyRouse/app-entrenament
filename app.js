@@ -272,6 +272,10 @@ function mostrarUltimEntrenament() {
 
   contenidor.hidden = false;
 }
+
+// Recordem quines targetes completades estan desplegades.
+const exercicisDesplegats = new Set();
+
 // Mostrem els exercicis del dia.
 function mostrarExercicis() {
   llista.innerHTML = "";
@@ -363,10 +367,32 @@ targeta.className = acabat
     ? "exercici en-curs"
     : "exercici";
 
-    targeta.innerHTML = `
+    const desplegat = !acabat || exercicisDesplegats.has(ex.instanciaId);
+
+targeta.innerHTML = `
+  <div class="capcalera-exercici">
+    <div>
       <h3>${escaparHTML(ex.nom)}</h3>
-      <p>${escaparHTML(ex.detall || "")}</p>
-      <div class="comptador">
+      ${acabat
+        ? `<p>${fetes} / ${total} rondes · Completat ✓</p>`
+        : `<p>${escaparHTML(ex.detall || "")}</p>`
+      }
+    </div>
+
+    ${acabat ? `
+      <button 
+         type="button"
+         class="boto-plegar"
+         data-accio="plegar"
+         aria-expanded="${desplegat}">
+        ${desplegat ? "Plegar ▲" : "Desplegar ▼"}
+      </button>
+    ` : ""}
+  </div>
+
+  <div class="contingut-exercici" ${desplegat ? "" : "hidden"}>
+    ${acabat ? `<p>${escaparHTML(ex.detall || "")}</p>` : ""}
+    <div class="comptador">
         <span class="progres">${fetes} / ${total} sèries</span>
         <div>
           <button class="boto-desfer" data-accio="desfer"
@@ -404,6 +430,7 @@ targeta.className = acabat
   </button>
 </div>
 
+</div>
     `;
 targeta.querySelectorAll("input[data-camp]").forEach(camp => {
   camp.addEventListener("input", () => {
@@ -441,6 +468,18 @@ targeta.querySelectorAll("input[data-camp]").forEach(camp => {
    
 targeta.querySelectorAll("button").forEach(boto => {
   boto.addEventListener("click", () => {
+
+    if (boto.dataset.accio === "plegar") {
+      if (exercicisDesplegats.has(ex.instanciaId)) {
+        exercicisDesplegats.delete(ex.instanciaId);
+      } else {
+        exercicisDesplegats.add(ex.instanciaId);
+      }
+
+      mostrarExercicis();
+      return;
+    }
+
     const actual = obtenirEntrenament();
 
     const index = actual.exercicis.findIndex(

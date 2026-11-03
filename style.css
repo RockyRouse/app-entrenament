@@ -455,3 +455,30 @@ button:disabled {
   color: white;
   border-color: #527da5;
 }
+
+.capcalera-exercici {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.capcalera-exercici h3 {
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.capcalera-exercici p {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.boto-plegar {
+  flex-shrink: 0;
+  border: 1px solid #aab7c5;
+  border-radius: 7px;
+  background: #e5eaf0;
+  color: #202c3c;
+  padding: 7px 10px;
+  cursor: pointer;
+}

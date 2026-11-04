@@ -73,6 +73,8 @@
     <option value="AMRAP">AMRAP</option>
     <option value="For Time">For Time</option>
     <option value="Tabata">Tabata</option>
+    <option value="Explosiu">Explosiu</option>
+    <option value="Piràmide">Piràmide</option>
   </select>
 
   <label for="durada-exercici">Durada / referència temporal (opcional)</label>
@@ -83,6 +85,13 @@
       <option value="minuts">Minuts</option>
     </select>
   </div>
+
+  <label for="nota-permanent">Nota permanent de l'exercici</label>
+  <textarea
+    id="nota-permanent"
+    rows="3"
+    placeholder="Ex. Provar d'incrementar 2,5 kg la propera vegada..."
+  ></textarea>
 
   <fieldset class="camps-personalitzats">
     <legend>Dades que vull registrar a cada ronda</legend>
@@ -127,6 +136,34 @@
         <input type="file" id="fitxer-importacio" accept=".json,application/json" hidden>
       </div>
     </section>
+
+    <section id="panell-estadistiques" class="seccio-biblioteca" hidden>
+  <h2>Estadístiques</h2>
+  <p>Consulta el resum de la teva activitat i l'evolució dels entrenaments.</p>
+
+  <div class="resum-estadistiques">
+    <div class="dada-estadistica">
+      <h3>Aquest mes</h3>
+      <p id="estadistica-mes">0</p>
+      <span>entrenaments completats</span>
+    </div>
+
+    <div class="dada-estadistica">
+      <h3>Aquest any</h3>
+      <p id="estadistica-any">0</p>
+      <span>entrenaments completats</span>
+    </div>
+
+    <div class="dada-estadistica">
+      <h3>Mitjana mensual</h3>
+      <p id="estadistica-mitjana">0</p>
+      <span>entrenaments per mes</span>
+    </div>
+  </div>
+
+  <h3>Activitat mensual</h3>
+  <div id="grafic-activitat" class="grafic-activitat"></div>
+</section>  
 
     <section class="seccio-entrenament">
   <div class="capcalera-entrenament">

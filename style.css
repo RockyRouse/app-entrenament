@@ -587,3 +587,76 @@ button:disabled {
   color: #27864a;
   font-weight: 600;
 }
+
+/* Estadístiques */
+.resum-estadistiques {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.dada-estadistica {
+  background: var(--color-targeta, #f2f2f2);
+  border-radius: 10px;
+  padding: 14px 8px;
+  text-align: center;
+}
+
+.dada-estadistica h3 {
+  font-size: 0.9rem;
+  margin: 0 0 10px;
+}
+
+.dada-estadistica p {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.dada-estadistica span {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
+/* Gràfic d'activitat */
+.grafic-activitat {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 6px;
+  height: 180px;
+  margin-top: 20px;
+  padding: 10px 0;
+}
+
+.barra-mes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.valor-mes {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.zona-barra {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.barra-activitat {
+  width: 100%;
+  min-height: 0;
+  background: var(--color-principal, #4a90e2);
+  border-radius: 5px 5px 0 0;
+}
+
+.etiqueta-mes {
+  font-size: 0.7rem;
+  margin-top: 6px;
+}

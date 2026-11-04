@@ -152,6 +152,7 @@ const formulari = document.getElementById("formulari-exercici");
 const campId = document.getElementById("id-exercici");
 const campNom = document.getElementById("nom-exercici");
 const campTotal = document.getElementById("total-series");
+const campNotaPermanent = document.getElementById("nota-permanent");
 const campRepeticions = document.getElementById("repeticions-exercici");
 const campMetode = document.getElementById("metode-exercici");
 const campDurada = document.getElementById("durada-exercici");
@@ -259,6 +260,82 @@ function obtenirEntrenament() {
   return entrenaments[data];
 }
 
+// Calcular i mostrar les estadístiques d'entrenament.
+function mostrarEstadistiques() {
+  const avui = new Date();
+  const anyActual = avui.getFullYear();
+  const mesActual = avui.getMonth();
+
+  let totalAny = 0;
+  let totalMes = 0;
+
+  const activitatMensual = Array(12).fill(0);
+
+  // Recorrem tots els entrenaments registrats.
+  Object.entries(entrenaments).forEach(([data, entrenament]) => {
+    if (!entrenament.completat) return;
+
+    const coincidencia = data.match(/^(\d{4})-(\d{2})-\d{2}$/);
+    if (!coincidencia) return;
+
+    const any = Number(coincidencia[1]);
+    const mes = Number(coincidencia[2]) - 1;
+
+    // Només comptem els entrenaments de l'any actual.
+    if (any !== anyActual || mes < 0 || mes > 11) return;
+
+    totalAny++;
+    activitatMensual[mes]++;
+
+    if (mes === mesActual) {
+      totalMes++;
+    }
+  });
+
+  // Calculem la mitjana mensual fins al mes actual.
+  const mitjana = totalAny / (mesActual + 1);
+
+  document.getElementById("estadistica-mes").textContent = totalMes;
+  document.getElementById("estadistica-any").textContent = totalAny;
+  document.getElementById("estadistica-mitjana").textContent =
+    mitjana.toLocaleString("ca-ES", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    });
+
+  // Preparem les dades del gràfic.
+  mostrarGraficActivitat(activitatMensual);
+}
+
+// Mostrar el gràfic d'activitat mensual.
+function mostrarGraficActivitat(dades) {
+  const contenidor = document.getElementById("grafic-activitat");
+
+  const mesos = [
+    "Gen", "Feb", "Mar", "Abr",
+    "Mai", "Jun", "Jul", "Ago",
+    "Set", "Oct", "Nov", "Des"
+  ];
+
+  const maxim = Math.max(...dades, 1);
+
+  contenidor.innerHTML = dades.map((total, index) => {
+    const altura = total > 0
+      ? Math.max((total / maxim) * 100, 5)
+      : 0;
+
+    return `
+      <div class="barra-mes">
+        <span class="valor-mes">${total}</span>
+        <div class="zona-barra">
+          <div class="barra-activitat" style="height: ${altura}%"></div>
+        </div>
+        <span class="etiqueta-mes">${mesos[index]}</span>
+      </div>
+    `;
+  }).join("");
+}
+
 // Actualitzem els controls segons l'estat de l'entrenament.
 function mostrarEstatEntrenament() {
   const entrenament = obtenirEntrenament();
@@ -299,6 +376,7 @@ botoCompletarEntrenament.addEventListener("click", () => {
   entrenament.completat = true;
 
   desarEntrenaments();
+  mostrarEstadistiques();
   mostrarEstatEntrenament();
   mostrarExercicis();
   mostrarSelector();
@@ -316,6 +394,7 @@ botoDesbloquejarEntrenament.addEventListener("click", () => {
   entrenament.completat = false;
 
   desarEntrenaments();
+  mostrarEstadistiques();
   mostrarEstatEntrenament();
   mostrarExercicis();
   mostrarSelector();
@@ -339,9 +418,11 @@ function mostrarUltimEntrenament() {
     .reverse();
 
   if (datesAnteriors.length === 0) {
-    contenidor.innerHTML = "";
-    contenidor.hidden = true;
-    return;
+  contenidor.innerHTML = `
+    <p>Encara no hi ha cap entrenament anterior a la data seleccionada.</p>
+  `;
+  contenidor.hidden = false;
+  return;
   }
 
   const dataUltim = datesAnteriors[0];
@@ -492,6 +573,18 @@ targeta.innerHTML = `
         </div>
 
       ${blocRegistres}
+
+      <div class="notes-exercici nota-permanent">
+        <label>
+          Nota permanent de l'exercici
+          <textarea
+            data-accio="nota-permanent"
+            ${bloquejat ? "disabled" : ""}
+            placeholder="Ex. Provar d'incrementar 2,5 kg..."
+          >${escaparHTML(ex.notaPermanent || "")}</textarea>
+        </label>
+      </div>
+
       <div class="notes-exercici">
         <label>
           Notes d'aquesta sessió
@@ -576,6 +669,34 @@ targeta.querySelector('[data-accio="notes"]').addEventListener("input", event =>
 
   exerciciActual.notes = event.target.value;
   desarEntrenaments();
+});
+
+targeta.querySelector('[data-accio="nota-permanent"]').addEventListener("input", event => {
+  const actual = obtenirEntrenament();
+
+  if (actual.completat) return;
+
+  const exerciciActual = actual.exercicis.find(
+    item => item.instanciaId === ex.instanciaId
+  );
+
+  if (!exerciciActual) return;
+
+  const nota = event.target.value;
+
+  exerciciActual.notaPermanent = nota;
+
+  const exerciciBiblioteca = biblioteca.find(
+    item => item.id === exerciciActual.exerciciId
+  );
+
+  if (exerciciBiblioteca) {
+    exerciciBiblioteca.notaPermanent = nota;
+    desarBiblioteca();
+  }
+
+  desarEntrenaments();
+  mostrarBiblioteca();
 });
 
 targeta.querySelectorAll("button").forEach(boto => {
@@ -666,6 +787,7 @@ entrenament.exercicis.push({
   metode: ex.metode || "",
   durada: ex.durada ?? null,
   unitatDurada: ex.unitatDurada || "segons",
+  notaPermanent: ex.notaPermanent || "",
   notes: "",
   seriesFetes: 0,
   camps: [...(ex.camps || [])],
@@ -734,7 +856,6 @@ function mostrarSelector() {
 }
 
 // Mostrem i gestionem la biblioteca.
-// Mostrem i gestionem la biblioteca.
 function mostrarBiblioteca() {
   llistaBiblioteca.innerHTML = "";
 
@@ -751,6 +872,9 @@ function mostrarBiblioteca() {
     targeta.innerHTML = `
       <h3>${escaparHTML(ex.nom)}</h3>
       <p>${escaparHTML(resumExercici(ex))}</p>
+      ${ex.notaPermanent
+        ? `<p class="nota-permanent">📝 ${escaparHTML(ex.notaPermanent)}</p>`
+        : ""}
       <div class="accions-biblioteca">
         <button
             class="boto-fet"
@@ -787,7 +911,7 @@ function mostrarBiblioteca() {
 formulari.addEventListener("submit", event => {
   event.preventDefault();
 
-  const nom = campNom.value.trim();
+  const nom = campNom.value.trim().toUpperCase();
   const total = Number.parseInt(campTotal.value, 10);
   const repeticions = campRepeticions.value === ""
     ? null
@@ -820,6 +944,7 @@ formulari.addEventListener("submit", event => {
 
   const dadesExercici = {
     nom,
+    notaPermanent: campNotaPermanent.value.trim(),
     seriesTotals: total,
     repeticions,
     metode,
@@ -850,6 +975,7 @@ formulari.addEventListener("submit", event => {
 function prepararEdicio(ex) {
   campId.value = ex.id;
   campNom.value = ex.nom;
+  campNotaPermanent.value = ex.notaPermanent || "";
   campTotal.value = ex.seriesTotals;
   campRepeticions.value = ex.repeticions ?? "";
   campMetode.value = ex.metode || "";
@@ -878,6 +1004,7 @@ function duplicarExercici(ex) {
   desarBiblioteca();
   mostrarBiblioteca();
 }
+
 function cancel·larEdicio() {
   formulari.reset();
   campId.value = "";
@@ -1167,7 +1294,7 @@ const panellBiblioteca = document.getElementById("panell-biblioteca");
 const botoGestioDades = document.getElementById("boto-gestio-dades");
 const panellGestioBiblioteca = document.getElementById("panell-gestio-biblioteca");
 const panellCopiaSeguretat = document.getElementById("panell-copia-seguretat");
-
+const panellEstadistiques = document.getElementById("panell-estadistiques");
 const botoUltimEntrenament = document.getElementById("boto-ultim-entrenament");
 const panellUltimEntrenament = document.getElementById("ultim-entrenament");
 const botoCalendari = document.getElementById("boto-calendari");
@@ -1179,6 +1306,7 @@ function tancarPanellsSecundaris() {
   panellBiblioteca.hidden = true;
   panellGestioBiblioteca.hidden = true;
   panellCopiaSeguretat.hidden = true;
+  panellEstadistiques.hidden = true;
   panellUltimEntrenament.hidden = true;
   panellCalendari.hidden = true;
 }
@@ -1227,13 +1355,17 @@ botoGestioDades.addEventListener("click", () => {
   tancarPanellsSecundaris();
   panellGestioBiblioteca.hidden = !mostrar;
   panellCopiaSeguretat.hidden = !mostrar;
-
+  panellEstadistiques.hidden = !mostrar;
+  if (mostrar) {
+    mostrarEstadistiques();
+  }
   actualitzarMenuActiu(mostrar ? botoGestioDades : null);
 });
 
 // Obrir i tancar l'últim entrenament
 botoUltimEntrenament.addEventListener("click", () => {
   const mostrar = panellUltimEntrenament.hidden;
+
   tancarPanellsSecundaris();
 
   if (mostrar) {

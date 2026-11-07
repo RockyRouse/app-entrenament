@@ -661,8 +661,7 @@ button:disabled {
 }
 
 .panell-temporitzador {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 1000;
   background: transparent;
   color: inherit;
@@ -671,6 +670,8 @@ button:disabled {
   margin-top: 12px;
   margin-bottom: 20px;
   box-shadow: none;
+  border-bottom: 1px solid #8a9bb0;
+  padding-bottom: 16px;
 }
 
 .temporitzador-temps {
@@ -785,12 +786,18 @@ button:disabled {
 }
 
 #boto-canviar-modalitat {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 38px;
   margin: 12px auto 0;
-  border: none;
+  padding: 0;
+  border: 1px solid #8a9bb0;
+  border-radius: 8px;
   background: transparent;
   color: inherit;
-  font-size: 26px;
+  font-size: 24px;
   cursor: pointer;
 }
 
@@ -823,12 +830,18 @@ button:disabled {
 }
 
 #boto-tornar-modalitats {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 38px;
   margin: 12px auto 0;
-  border: none;
+  padding: 0;
+  border: 1px solid #8a9bb0;
+  border-radius: 8px;
   background: transparent;
   color: inherit;
-  font-size: 26px;
+  font-size: 24px;
   cursor: pointer;
 }
 
@@ -851,4 +864,9 @@ button:disabled {
   border-radius: 8px;
   font-size: 17px;
   text-align: center;
+}
+
+.boto-temporitzador.actiu {
+  background: #d18b38;
+  color: white;
 }

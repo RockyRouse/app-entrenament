@@ -1825,4 +1825,9 @@ mostrarPresetsTemporitzador();
 
 botoObrirTemporitzador.addEventListener("click", () => {
   panellTemporitzador.hidden = !panellTemporitzador.hidden;
+
+  botoObrirTemporitzador.classList.toggle(
+    "actiu",
+    !panellTemporitzador.hidden
+  );
 });

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ca">
 <head>
@@ -12,8 +11,93 @@
 <body>
 
   <header class="capcalera-app">
-    <h1>EntrenamentApp</h1>
-  </header>
+  <h1>EntrenamentApp</h1>
+
+  <button id="boto-obrir-temporitzador" class="boto-temporitzador" type="button" title="Temporitzador">
+    <span aria-hidden="true">⏱</span>
+  </button>
+</header>
+
+<section id="panell-temporitzador" class="panell-temporitzador" hidden>
+
+  <div class="selector-tipus-temporitzador">
+    <button id="boto-cronometre" type="button">
+      Cronòmetre
+    </button>
+
+    <button id="boto-compte-enrere" type="button">
+      Compte enrere
+    </button>
+  </div>
+
+  <div id="temporitzador-actiu" hidden>
+
+    <div class="temporitzador-temps" id="temps-temporitzador">
+      00:00
+    </div>
+
+    <div class="temporitzador-controls">
+      <button id="boto-iniciar-temporitzador" type="button">Iniciar</button>
+      <button id="boto-reiniciar-temporitzador" type="button">Reiniciar</button>
+      <button id="boto-tancar-temporitzador" type="button">Tancar</button>
+    </div>
+   <button id="boto-canviar-modalitat" type="button">
+     Canviar modalitat
+     </button>
+  </div>
+
+  <div id="configuracio-compte-enrere" hidden>
+
+    <div id="opcions-compte-enrere">
+
+      <label for="durada-minuts">Minuts:</label>
+      <input type="number" id="durada-minuts" min="0" max="99" value="1">
+
+      <label for="durada-segons">Segons:</label>
+      <input type="number" id="durada-segons" min="0" max="59" value="0">
+
+    </div>
+
+    <div id="presets-temporitzador" class="presets-temporitzador"></div>
+
+     <button id="boto-confirmar-compte-enrere" type="button">
+      Utilitzar aquest temps
+     </button>
+
+    <button id="boto-gestionar-presets" type="button">
+
+      <button id="boto-tornar-modalitats" type="button">
+       Tornar
+      </button>
+
+      <button id="boto-tancar-compte-enrere" type="button">
+        Tancar
+      </button>
+
+      Gestionar temps
+    </button>
+
+    <div id="gestio-presets" hidden>
+
+      <h3>Gestionar temps predefinits</h3>
+
+      <label for="nou-preset-minuts">Minuts:</label>
+      <input type="number" id="nou-preset-minuts" min="0" max="99" value="0">
+
+      <label for="nou-preset-segons">Segons:</label>
+      <input type="number" id="nou-preset-segons" min="0" max="59" value="30">
+
+      <button id="boto-afegir-preset" type="button">
+        Afegir temps
+      </button>
+
+      <div id="llista-gestio-presets"></div>
+
+    </div>
+
+  </div>
+
+</section>
 
 <nav id="menu-principal" class="menu-principal">
 
@@ -25,7 +109,7 @@
   </div>
 
   <section id="panell-calendari" class="data-entrenament" hidden>
-     <div class="calendari-personal">
+    <div class="calendari-personal">
       <div class="capcalera-calendari">
         <button type="button" id="mes-anterior">‹</button>
         <h3 id="mes-any"></h3>
@@ -39,10 +123,11 @@
 
 </nav>
 
-  <main>
+<main>
 
-    <section id="ultim-entrenament" class="referencia-entrenament" hidden>
-    </section>
+   <section id="ultim-entrenament" class="referencia-entrenament" hidden>
+   </section>
+
 
 <section id="panell-biblioteca" class="seccio-biblioteca" hidden>
       <h2>Biblioteca d'exercicis</h2>

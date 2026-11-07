@@ -1,4 +1,4 @@
-const CACHE_NAME = "entrenament-v9";
+const CACHE_NAME = "entrenament-v10";
 
 const FITXERS = [
   "./",

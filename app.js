@@ -1,6 +1,5 @@
 const CLAU_ENTRENAMENTS = "entrenamentApp";
 const CLAU_BIBLIOTECA = "entrenamentBiblioteca";
-
 const exercicisInicials = [
   {
     id: "ex-rmu",
@@ -50,8 +49,66 @@ const textEstatEntrenament = document.getElementById("text-estat-entrenament");
 const botoCompletarEntrenament = document.getElementById("boto-completar-entrenament");
 const botoDesbloquejarEntrenament = document.getElementById("boto-desbloquejar-entrenament");
 
+// Elements del temporitzador
+const panellTemporitzador = document.getElementById("panell-temporitzador");
+const botoObrirTemporitzador = document.getElementById("boto-obrir-temporitzador");
+const tempsTemporitzador = document.getElementById("temps-temporitzador");
+const botoIniciarTemporitzador = document.getElementById("boto-iniciar-temporitzador");
+const botoReiniciarTemporitzador = document.getElementById("boto-reiniciar-temporitzador");
+const botoTancarTemporitzador = document.getElementById("boto-tancar-temporitzador");
+
+// Configuració del temporitzador
+const botoCronometre = document.getElementById("boto-cronometre");
+const botoCompteEnrere = document.getElementById("boto-compte-enrere");
+const selectorTipusTemporitzador = document.querySelector(".selector-tipus-temporitzador");
+const temporitzadorActiu = document.getElementById("temporitzador-actiu");
+const configuracioCompteEnrere = document.getElementById("configuracio-compte-enrere");
+const botoConfirmarCompteEnrere = document.getElementById("boto-confirmar-compte-enrere");
+const botoCanviarModalitat = document.getElementById("boto-canviar-modalitat");
+const botoTornarModalitats = document.getElementById("boto-tornar-modalitats");
+const botoTancarCompteEnrere = document.getElementById("boto-tancar-compte-enrere");
+const opcionsCompteEnrere = document.getElementById("opcions-compte-enrere");
+const duradaMinuts = document.getElementById("durada-minuts");
+const duradaSegons = document.getElementById("durada-segons");
+
+const presetsTemporitzador = document.getElementById("presets-temporitzador");
+const botoGestionarPresets = document.getElementById("boto-gestionar-presets");
+const gestioPresets = document.getElementById("gestio-presets");
+const nouPresetMinuts = document.getElementById("nou-preset-minuts");
+const nouPresetSegons = document.getElementById("nou-preset-segons");
+const botoAfegirPreset = document.getElementById("boto-afegir-preset");
+const llistaGestioPresets = document.getElementById("llista-gestio-presets");
+
+// Temps predefinits inicials, expressats en segons.
+let llistaPresets = JSON.parse(
+  localStorage.getItem("presetsTemporitzador")
+) || [
+  30,
+  60,
+  90,
+  120,
+  180,
+  300
+];
+
+function desarPresetsTemporitzador() {
+  localStorage.setItem(
+    "presetsTemporitzador",
+    JSON.stringify(llistaPresets)
+  );
+}
+
 let anyCalendari;
 let mesCalendari;
+// Estat del temporitzador
+let intervalTemporitzador = null;
+let iniciTemporitzador = null;
+let duradaTemporitzador = 0;
+let tempsAcumulat = 0;
+let tipusTemporitzador = null;
+let temporitzadorEnMarxa = false;
+let compteEnrereAcabat = false;
+let contextAudioTemporitzador = null;
 
 function inicialitzarCalendari() {
   const dataInicial = campData.value
@@ -63,6 +120,346 @@ function inicialitzarCalendari() {
 
   dibuixarCalendari();
 }
+
+botoGestionarPresets.addEventListener("click", () => {
+  gestioPresets.hidden = !gestioPresets.hidden;
+});
+
+botoAfegirPreset.addEventListener("click", () => {
+  const minuts = Math.max(0, Math.min(99, Number(nouPresetMinuts.value) || 0));
+  const segons = Math.max(0, Math.min(59, Number(nouPresetSegons.value) || 0));
+
+  const nouTemps = minuts * 60 + segons;
+
+  if (nouTemps <= 0) {
+    alert("Indica una durada superior a zero.");
+    return;
+  }
+
+  if (llistaPresets.includes(nouTemps)) {
+    alert("Aquest temps ja existeix.");
+    return;
+  }
+
+  llistaPresets.push(nouTemps);
+  llistaPresets.sort((a, b) => a - b);
+
+  desarPresetsTemporitzador();
+  mostrarPresetsTemporitzador();
+
+  nouPresetMinuts.value = 0;
+  nouPresetSegons.value = 30;
+});
+
+function mostrarPresetsTemporitzador() {
+  presetsTemporitzador.innerHTML = "";
+  llistaGestioPresets.innerHTML = "";
+
+  llistaPresets.forEach((segons, index) => {
+    // Botó per seleccionar el temps.
+    const boto = document.createElement("button");
+    boto.textContent = formatarTemps(segons);
+    boto.type = "button";
+
+   boto.addEventListener("click", () => {
+      duradaMinuts.value = Math.floor(segons / 60);
+      duradaSegons.value = segons % 60;
+
+      seleccionarCompteEnrere();
+      confirmarCompteEnrere();
+    });
+
+    presetsTemporitzador.appendChild(boto);
+
+    // Fila de gestió del preset.
+    const fila = document.createElement("div");
+    fila.className = "fila-preset";
+
+    const etiqueta = document.createElement("span");
+    etiqueta.textContent = formatarTemps(segons);
+    const botoEditar = document.createElement("button");
+    botoEditar.textContent = "Editar";
+    botoEditar.type = "button";
+
+botoEditar.addEventListener("click", () => {
+  const nouValor = prompt(
+    "Introdueix el nou temps (MM:SS):",
+    formatarTemps(segons)
+  );
+
+  if (nouValor === null) return;
+
+  const parts = nouValor.split(":");
+
+  if (parts.length !== 2) {
+    alert("Format incorrecte. Utilitza MM:SS.");
+    return;
+  }
+
+  const minuts = Number(parts[0]);
+  const segonsNous = Number(parts[1]);
+
+  if (
+    !Number.isInteger(minuts) ||
+    !Number.isInteger(segonsNous) ||
+    minuts < 0 || minuts > 99 ||
+    segonsNous < 0 || segonsNous > 59 ||
+    minuts * 60 + segonsNous <= 0
+  ) {
+    alert("El temps indicat no és vàlid.");
+    return;
+  }
+
+  const nouTemps = minuts * 60 + segonsNous;
+
+  if (llistaPresets.includes(nouTemps) && nouTemps !== segons) {
+    alert("Aquest temps ja existeix.");
+    return;
+  }
+
+  llistaPresets[index] = nouTemps;
+  desarPresetsTemporitzador();
+  mostrarPresetsTemporitzador();
+});
+
+    const botoPujar = document.createElement("button");
+    botoPujar.textContent = "↑";
+    botoPujar.type = "button";
+    botoPujar.disabled = index === 0;
+
+    botoPujar.addEventListener("click", () => {
+      [llistaPresets[index - 1], llistaPresets[index]] =
+        [llistaPresets[index], llistaPresets[index - 1]];
+
+      desarPresetsTemporitzador();
+      mostrarPresetsTemporitzador();
+    });
+
+    const botoBaixar = document.createElement("button");
+    botoBaixar.textContent = "↓";
+    botoBaixar.type = "button";
+    botoBaixar.disabled = index === llistaPresets.length - 1;
+
+    botoBaixar.addEventListener("click", () => {
+      [llistaPresets[index], llistaPresets[index + 1]] =
+        [llistaPresets[index + 1], llistaPresets[index]];
+
+      desarPresetsTemporitzador();
+      mostrarPresetsTemporitzador();
+    });
+
+    const botoEliminar = document.createElement("button");
+    botoEliminar.textContent = "Eliminar";
+    botoEliminar.type = "button";
+
+    botoEliminar.addEventListener("click", () => {
+      llistaPresets.splice(index, 1);
+
+      desarPresetsTemporitzador();
+      mostrarPresetsTemporitzador();
+    });
+
+    fila.appendChild(etiqueta);
+    fila.appendChild(botoEditar);
+    fila.appendChild(botoPujar);
+    fila.appendChild(botoBaixar);
+    fila.appendChild(botoEliminar);
+
+    llistaGestioPresets.appendChild(fila);
+  });
+}
+
+function emetreSoTemporitzador() {
+  try {
+    if (!contextAudioTemporitzador) {
+      contextAudioTemporitzador = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
+    }
+
+    if (contextAudioTemporitzador.state === "suspended") {
+      contextAudioTemporitzador.resume();
+    }
+
+    const oscil·lador = contextAudioTemporitzador.createOscillator();
+    const volum = contextAudioTemporitzador.createGain();
+
+    oscil·lador.type = "sine";
+    oscil·lador.frequency.value = 880;
+
+    volum.gain.value = 0.2;
+
+    oscil·lador.connect(volum);
+    volum.connect(contextAudioTemporitzador.destination);
+
+    oscil·lador.start();
+    oscil·lador.stop(contextAudioTemporitzador.currentTime + 0.5);
+
+  } catch (error) {
+    console.log("No s'ha pogut reproduir l'avís sonor:", error);
+  }
+}
+
+function formatarTemps(segons) {
+  const minuts = Math.floor(segons / 60);
+  const segonsRestants = segons % 60;
+
+  return (
+    String(minuts).padStart(2, "0") +
+    ":" +
+    String(segonsRestants).padStart(2, "0")
+  );
+}
+
+function actualitzarPantallaTemporitzador() {
+  if (!temporitzadorEnMarxa || !iniciTemporitzador) return;
+
+  const ara = Date.now();
+  const transcorregut = tempsAcumulat +
+    Math.floor((ara - iniciTemporitzador) / 1000);
+
+  let tempsMostrar;
+
+  if (tipusTemporitzador === "cronometre") {
+    tempsMostrar = transcorregut;
+  } else {
+    tempsMostrar = Math.max(0, duradaTemporitzador - transcorregut);
+  }
+
+  tempsTemporitzador.textContent = formatarTemps(tempsMostrar);
+
+  if (tipusTemporitzador === "compte-enrere" && tempsMostrar <= 0) {
+  aturarTemporitzador();
+  compteEnrereAcabat = true;
+  botoIniciarTemporitzador.textContent = "Reiniciar";
+  emetreSoTemporitzador();
+  alert("Temps acabat!");
+}
+}
+
+function aturarTemporitzador() {
+  if (intervalTemporitzador !== null) {
+    clearInterval(intervalTemporitzador);
+    intervalTemporitzador = null;
+  }
+
+  if (temporitzadorEnMarxa && iniciTemporitzador) {
+    tempsAcumulat += Math.floor(
+      (Date.now() - iniciTemporitzador) / 1000
+    );
+  }
+
+  iniciTemporitzador = null;
+  temporitzadorEnMarxa = false;
+}
+
+function iniciarTemporitzador() {
+  if (temporitzadorEnMarxa) return;
+  if (!tipusTemporitzador) return;
+
+  iniciTemporitzador = Date.now();
+  temporitzadorEnMarxa = true;
+
+  panellTemporitzador.hidden = false;
+  botoIniciarTemporitzador.textContent = "Pausar";
+
+  intervalTemporitzador = setInterval(
+    actualitzarPantallaTemporitzador,
+    250
+  );
+
+  actualitzarPantallaTemporitzador();
+}
+
+function reiniciarTemporitzador() {
+  aturarTemporitzador();
+
+  tempsAcumulat = 0;
+  iniciTemporitzador = null;
+  compteEnrereAcabat = false;
+
+  if (tipusTemporitzador === "compte-enrere") {
+    tempsTemporitzador.textContent = formatarTemps(duradaTemporitzador);
+  } else {
+    tempsTemporitzador.textContent = "00:00";
+  }
+
+  botoIniciarTemporitzador.textContent = "Iniciar";
+}
+
+function tancarTemporitzador() {
+  aturarTemporitzador();
+
+  tempsAcumulat = 0;
+  iniciTemporitzador = null;
+  duradaTemporitzador = 0;
+  tipusTemporitzador = null;
+
+  temporitzadorActiu.hidden = true;
+  configuracioCompteEnrere.hidden = true;
+  selectorTipusTemporitzador.hidden = false;
+  panellTemporitzador.hidden = true;
+  botoIniciarTemporitzador.textContent = "Iniciar";
+  tempsTemporitzador.textContent = "00:00";
+}
+
+function seleccionarCronometre() {
+  aturarTemporitzador();
+
+  tipusTemporitzador = "cronometre";
+  tempsAcumulat = 0;
+  duradaTemporitzador = 0;
+  compteEnrereAcabat = false;
+
+  tempsTemporitzador.textContent = "00:00";
+
+  configuracioCompteEnrere.hidden = true;
+  temporitzadorActiu.hidden = false;
+  panellTemporitzador.hidden = false;
+  selectorTipusTemporitzador.hidden = true;
+
+  botoIniciarTemporitzador.textContent = "Iniciar";
+}
+
+function confirmarCompteEnrere() {
+  const minuts = Math.max(0, Math.min(99, Number(duradaMinuts.value) || 0));
+  const segons = Math.max(0, Math.min(59, Number(duradaSegons.value) || 0));
+
+  duradaMinuts.value = minuts;
+  duradaSegons.value = segons;
+
+  duradaTemporitzador = minuts * 60 + segons;
+
+  if (duradaTemporitzador <= 0) {
+    alert("Indica una durada superior a zero.");
+    return;
+  }
+
+  tempsAcumulat = 0;
+  compteEnrereAcabat = false;
+
+  tempsTemporitzador.textContent = formatarTemps(duradaTemporitzador);
+
+  configuracioCompteEnrere.hidden = true;
+  document.getElementById("temporitzador-actiu").hidden = false;
+
+  botoIniciarTemporitzador.textContent = "Iniciar";
+}
+
+function seleccionarCompteEnrere() {
+  aturarTemporitzador();
+
+  tipusTemporitzador = "compte-enrere";
+  tempsAcumulat = 0;
+  compteEnrereAcabat = false;
+
+  configuracioCompteEnrere.hidden = false;
+  document.getElementById("temporitzador-actiu").hidden = true;
+
+  panellTemporitzador.hidden = false;
+  selectorTipusTemporitzador.hidden = true;
+}
+
 function dibuixarCalendari() {
   calendari.innerHTML = "";
 
@@ -442,6 +839,7 @@ function mostrarUltimEntrenament() {
 
 // Recordem quines targetes completades estan desplegades.
 const exercicisDesplegats = new Set();
+const exercicisPlegats = new Set();
 
 // Mostrem els exercicis del dia.
 function mostrarExercicis() {
@@ -535,7 +933,11 @@ targeta.className = acabat
     ? "exercici en-curs"
     : "exercici";
 
-    const desplegat = !acabat || exercicisDesplegats.has(ex.instanciaId);
+    const desplegat = exercicisPlegats.has(ex.instanciaId)
+       ? false
+       : acabat
+          ? exercicisDesplegats.has(ex.instanciaId)
+          : true;
 
 targeta.innerHTML = `
   <div class="capcalera-exercici">
@@ -547,15 +949,13 @@ targeta.innerHTML = `
      } 
     </div>
 
-    ${acabat ? `
-      <button 
-         type="button"
-         class="boto-plegar"
-         data-accio="plegar"
-         aria-expanded="${desplegat}">
-        ${desplegat ? "Plegar ▲" : "Desplegar ▼"}
-      </button>
-    ` : ""}
+    <button 
+       type="button"
+       class="boto-plegar"
+       data-accio="plegar"
+       aria-expanded="${desplegat}">
+      ${desplegat ? "Plegar ▲" : "Desplegar ▼"}
+     </button>
   </div>
 
   <div class="contingut-exercici" ${desplegat ? "" : "hidden"}>
@@ -702,16 +1102,18 @@ targeta.querySelector('[data-accio="nota-permanent"]').addEventListener("input",
 targeta.querySelectorAll("button").forEach(boto => {
   boto.addEventListener("click", () => {
 
-    if (boto.dataset.accio === "plegar") {
-      if (exercicisDesplegats.has(ex.instanciaId)) {
-        exercicisDesplegats.delete(ex.instanciaId);
-      } else {
-        exercicisDesplegats.add(ex.instanciaId);
-      }
-
-      mostrarExercicis();
-      return;
+  if (boto.dataset.accio === "plegar") {
+    if (desplegat) {
+      exercicisPlegats.add(ex.instanciaId);
+      exercicisDesplegats.delete(ex.instanciaId);
+    } else {
+      exercicisPlegats.delete(ex.instanciaId);
+      exercicisDesplegats.add(ex.instanciaId);
     }
+
+    mostrarExercicis();
+    return;
+   }
 
     const actual = obtenirEntrenament();
     if (actual.completat) return;
@@ -835,7 +1237,9 @@ function mostrarSelector() {
   select.id = "seleccio-exercici";
   select.setAttribute("aria-label", "Selecciona un exercici");
 
-  biblioteca.forEach(ex => {
+  [...biblioteca]
+      .sort((a, b) => a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" }))
+      .forEach(ex => {
     const opcio = document.createElement("option");
     opcio.value = ex.id;
     opcio.textContent = `${ex.nom} — ${resumExercici(ex)}`;
@@ -865,7 +1269,9 @@ function mostrarBiblioteca() {
     return;
   }
 
-  biblioteca.forEach(ex => {
+  [...biblioteca]
+     .sort((a, b) => a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" }))
+     .forEach(ex => {
     const targeta = document.createElement("article");
     targeta.className = "targeta-biblioteca";
 
@@ -1290,7 +1696,6 @@ fitxerImportacioBiblioteca.addEventListener("change", async () => {
 // Elements del menú i dels panells
 const botoBiblioteca = document.getElementById("boto-biblioteca");
 const panellBiblioteca = document.getElementById("panell-biblioteca");
-
 const botoGestioDades = document.getElementById("boto-gestio-dades");
 const panellGestioBiblioteca = document.getElementById("panell-gestio-biblioteca");
 const panellCopiaSeguretat = document.getElementById("panell-copia-seguretat");
@@ -1373,4 +1778,50 @@ botoUltimEntrenament.addEventListener("click", () => {
   }
 
   actualitzarMenuActiu(mostrar ? botoUltimEntrenament : null);
+});
+
+// Connectem els controls del temporitzador.
+
+botoCronometre.addEventListener("click", seleccionarCronometre);
+
+botoCompteEnrere.addEventListener("click", seleccionarCompteEnrere);
+botoConfirmarCompteEnrere.addEventListener("click", confirmarCompteEnrere);
+botoTornarModalitats.addEventListener("click", () => {
+  configuracioCompteEnrere.hidden = true;
+  selectorTipusTemporitzador.hidden = false;
+});
+botoTancarCompteEnrere.addEventListener("click", tancarTemporitzador);
+botoCanviarModalitat.addEventListener("click", () => {
+  if (!confirm("Vols aturar i reiniciar el temporitzador actual?")) {
+    return;
+  }
+
+  aturarTemporitzador();
+  reiniciarTemporitzador();
+
+  temporitzadorActiu.hidden = true;
+  configuracioCompteEnrere.hidden = true;
+  selectorTipusTemporitzador.hidden = false;
+});
+botoIniciarTemporitzador.addEventListener("click", () => {
+  if (compteEnrereAcabat) {
+    reiniciarTemporitzador();
+    return;
+  }
+
+  if (temporitzadorEnMarxa) {
+    aturarTemporitzador();
+    botoIniciarTemporitzador.textContent = "Reprendre";
+  } else {
+    iniciarTemporitzador();
+  }
+});
+
+botoReiniciarTemporitzador.addEventListener("click", reiniciarTemporitzador);
+
+botoTancarTemporitzador.addEventListener("click", tancarTemporitzador);
+mostrarPresetsTemporitzador();
+
+botoObrirTemporitzador.addEventListener("click", () => {
+  panellTemporitzador.hidden = !panellTemporitzador.hidden;
 });

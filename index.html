@@ -30,72 +30,66 @@
     </button>
   </div>
 
-  <div id="temporitzador-actiu" hidden>
+   <div id="temporitzador-actiu" hidden>
 
-    <div class="temporitzador-temps" id="temps-temporitzador">
-      00:00
-    </div>
+     <div class="temporitzador-temps" id="temps-temporitzador">
+     00:00
+   </div>
 
-    <div class="temporitzador-controls">
-      <button id="boto-iniciar-temporitzador" type="button">Iniciar</button>
-      <button id="boto-reiniciar-temporitzador" type="button">Reiniciar</button>
-      <button id="boto-tancar-temporitzador" type="button">Tancar</button>
-    </div>
-   <button id="boto-canviar-modalitat" type="button">
-     Canviar modalitat
-     </button>
-  </div>
+     <div class="temporitzador-controls">
+    <button id="boto-iniciar-temporitzador" type="button">Iniciar</button>
+    <button id="boto-reiniciar-temporitzador" type="button">Reiniciar</button>
+      </div>
 
-  <div id="configuracio-compte-enrere" hidden>
-
-    <div id="opcions-compte-enrere">
-
-      <label for="durada-minuts">Minuts:</label>
-      <input type="number" id="durada-minuts" min="0" max="99" value="1">
-
-      <label for="durada-segons">Segons:</label>
-      <input type="number" id="durada-segons" min="0" max="59" value="0">
-
-    </div>
-
-    <div id="presets-temporitzador" class="presets-temporitzador"></div>
-
-     <button id="boto-confirmar-compte-enrere" type="button">
-      Utilitzar aquest temps
-     </button>
-
-    <button id="boto-gestionar-presets" type="button">
-
-      <button id="boto-tornar-modalitats" type="button">
-       Tornar
-      </button>
-
-      <button id="boto-tancar-compte-enrere" type="button">
-        Tancar
-      </button>
-
-      Gestionar temps
+     <button id="boto-canviar-modalitat" type="button" title="Tornar a les modalitats" aria-label="Tornar a les modalitats">
+      ↩
     </button>
 
-    <div id="gestio-presets" hidden>
+</div>
 
-      <h3>Gestionar temps predefinits</h3>
+ <div id="configuracio-compte-enrere" hidden>
 
-      <label for="nou-preset-minuts">Minuts:</label>
-      <input type="number" id="nou-preset-minuts" min="0" max="99" value="0">
+  <div id="presets-temporitzador" class="presets-temporitzador"></div>
 
-      <label for="nou-preset-segons">Segons:</label>
-      <input type="number" id="nou-preset-segons" min="0" max="59" value="30">
+  <div id="opcions-compte-enrere">
+    <label for="durada-minuts">Minuts:</label>
+    <input type="number" id="durada-minuts" min="0" max="99" value="1">
 
-      <button id="boto-afegir-preset" type="button">
-        Afegir temps
-      </button>
+    <label for="durada-segons">Segons:</label>
+    <input type="number" id="durada-segons" min="0" max="59" value="0">
+   </div>
+   
+  <button id="boto-confirmar-compte-enrere" type="button">
+    Utilitzar aquest temps
+  </button>
 
-      <div id="llista-gestio-presets"></div>
+  <button id="boto-gestionar-presets" type="button">
+    Gestionar temps
+  </button>
 
-    </div>
+  <div id="gestio-presets" hidden>
+
+    <h3>Gestionar temps predefinits</h3>
+
+    <label for="nou-preset-minuts">Minuts:</label>
+    <input type="number" id="nou-preset-minuts" min="0" max="99" value="0">
+
+    <label for="nou-preset-segons">Segons:</label>
+    <input type="number" id="nou-preset-segons" min="0" max="59" value="30">
+
+    <button id="boto-afegir-preset" type="button">
+      Afegir temps
+    </button>
+
+    <div id="llista-gestio-presets"></div>
 
   </div>
+
+  <button id="boto-tornar-modalitats" type="button">↩</button>
+
+
+
+</div>
 
 </section>
 

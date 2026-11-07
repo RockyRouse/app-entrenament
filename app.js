@@ -55,7 +55,6 @@ const botoObrirTemporitzador = document.getElementById("boto-obrir-temporitzador
 const tempsTemporitzador = document.getElementById("temps-temporitzador");
 const botoIniciarTemporitzador = document.getElementById("boto-iniciar-temporitzador");
 const botoReiniciarTemporitzador = document.getElementById("boto-reiniciar-temporitzador");
-const botoTancarTemporitzador = document.getElementById("boto-tancar-temporitzador");
 
 // Configuració del temporitzador
 const botoCronometre = document.getElementById("boto-cronometre");
@@ -66,7 +65,6 @@ const configuracioCompteEnrere = document.getElementById("configuracio-compte-en
 const botoConfirmarCompteEnrere = document.getElementById("boto-confirmar-compte-enrere");
 const botoCanviarModalitat = document.getElementById("boto-canviar-modalitat");
 const botoTornarModalitats = document.getElementById("boto-tornar-modalitats");
-const botoTancarCompteEnrere = document.getElementById("boto-tancar-compte-enrere");
 const opcionsCompteEnrere = document.getElementById("opcions-compte-enrere");
 const duradaMinuts = document.getElementById("durada-minuts");
 const duradaSegons = document.getElementById("durada-segons");
@@ -97,6 +95,13 @@ function desarPresetsTemporitzador() {
     JSON.stringify(llistaPresets)
   );
 }
+
+function netejarPresetSobrer() {
+  llistaPresets = llistaPresets.filter(segons => segons !== 31);
+  desarPresetsTemporitzador();
+}
+
+netejarPresetSobrer();
 
 let anyCalendari;
 let mesCalendari;
@@ -1790,12 +1795,9 @@ botoTornarModalitats.addEventListener("click", () => {
   configuracioCompteEnrere.hidden = true;
   selectorTipusTemporitzador.hidden = false;
 });
-botoTancarCompteEnrere.addEventListener("click", tancarTemporitzador);
-botoCanviarModalitat.addEventListener("click", () => {
-  if (!confirm("Vols aturar i reiniciar el temporitzador actual?")) {
-    return;
-  }
 
+botoCanviarModalitat.addEventListener("click", () => {
+  
   aturarTemporitzador();
   reiniciarTemporitzador();
 
@@ -1819,7 +1821,6 @@ botoIniciarTemporitzador.addEventListener("click", () => {
 
 botoReiniciarTemporitzador.addEventListener("click", reiniciarTemporitzador);
 
-botoTancarTemporitzador.addEventListener("click", tancarTemporitzador);
 mostrarPresetsTemporitzador();
 
 botoObrirTemporitzador.addEventListener("click", () => {

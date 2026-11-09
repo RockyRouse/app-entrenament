@@ -212,6 +212,20 @@
       <div class="accions-biblioteca">
         <button type="button" id="boto-exportar" class="boto-fet">Exportar còpia de seguretat</button>
         <button type="button" id="boto-importar" class="boto-secundari">Importar còpia de seguretat</button>
+        <button type="button" id="boto-exportar-excel" class="boto-fet">
+            Exportar a Excel
+        </button>
+
+        <button type="button" id="boto-importar-excel" class="boto-secundari">
+             Importar des d'Excel
+        </button>
+
+        <input
+            type="file"
+            id="fitxer-importacio-excel"
+            accept=".xlsx"
+            hidden
+         >
         <input type="file" id="fitxer-importacio" accept=".json,application/json" hidden>
       </div>
     </section>
@@ -270,7 +284,8 @@
 
   </main>
 
-  <script src="app.js"></script>
+   <script src="js/exceljs.min.js"></script>
+   <script src="app.js"></script>
 
   <script>
     if ("serviceWorker" in navigator) {

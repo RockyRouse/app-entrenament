@@ -1,10 +1,11 @@
-const CACHE_NAME = "entrenament-v13";
+const CACHE_NAME = "entrenament-v15";
 
 const FITXERS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
+  "./js/exceljs.min.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"

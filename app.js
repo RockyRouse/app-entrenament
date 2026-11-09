@@ -1477,14 +1477,18 @@ mostrarExercicis();
 mostrarEstatEntrenament();
 mostrarSelector();
 mostrarBiblioteca();
-// --- Còpies de seguretat ---
 
+// --- Còpies de seguretat ---
 const botoExportar = document.getElementById("boto-exportar");
 const botoImportar = document.getElementById("boto-importar");
 const fitxerImportacio = document.getElementById("fitxer-importacio");
 const botoExportarBiblioteca = document.getElementById("boto-exportar-biblioteca");
 const botoImportarBiblioteca = document.getElementById("boto-importar-biblioteca");
 const fitxerImportacioBiblioteca = document.getElementById("fitxer-importacio-biblioteca");
+const botoExportarExcel = document.getElementById("boto-exportar-excel");
+const botoImportarExcel = document.getElementById("boto-importar-excel");
+const fitxerImportacioExcel = document.getElementById("fitxer-importacio-excel");
+
 
 botoExportar.addEventListener("click", () => {
   const copia = {
@@ -1697,6 +1701,473 @@ fitxerImportacioBiblioteca.addEventListener("change", async () => {
     fitxerImportacioBiblioteca.value = "";
   }
 });
+
+// --- Exportar biblioteca a Excel ---
+
+botoExportarExcel.addEventListener("click", async () => {
+  const llibre = new ExcelJS.Workbook();
+  const full = llibre.addWorksheet("Biblioteca");
+
+  // Definim les columnes.
+  full.columns = [
+    { header: "ID", key: "id", width: 38 },
+    { header: "Nom", key: "nom", width: 30 },
+    { header: "Nota permanent", key: "notaPermanent", width: 40 },
+    { header: "Rondes", key: "seriesTotals", width: 12 },
+    { header: "Repeticions", key: "repeticions", width: 14 },
+    { header: "Mètode", key: "metode", width: 18 },
+    { header: "Durada", key: "durada", width: 12 },
+    { header: "Unitat durada", key: "unitatDurada", width: 16 },
+    { header: "Temps", key: "temps", width: 12 },
+    { header: "Pes", key: "pes", width: 12 },
+    { header: "Goma / variant", key: "variant", width: 18 },
+    { header: "Distància", key: "distancia", width: 14 },
+    { header: "Comentari", key: "comentari", width: 14 }
+  ];
+
+  // Afegim tots els exercicis de la biblioteca.
+  biblioteca.forEach(ex => {
+    const camps = ex.camps || [];
+
+    full.addRow({
+      id: ex.id,
+      nom: ex.nom,
+      notaPermanent: ex.notaPermanent || "",
+      seriesTotals: ex.seriesTotals,
+      repeticions: ex.repeticions ?? null,
+      metode: ex.metode || "",
+      durada: ex.durada ?? null,
+      unitatDurada: ex.unitatDurada || "segons",
+      temps: camps.includes("temps") ? "Sí" : "No",
+      pes: camps.includes("pes") ? "Sí" : "No",
+      variant: camps.includes("variant") ? "Sí" : "No",
+      distancia: camps.includes("distancia") ? "Sí" : "No",
+      comentari: camps.includes("comentari") ? "Sí" : "No"
+    });
+  });
+
+  // Donem format a la capçalera.
+  const capcalera = full.getRow(1);
+  capcalera.font = { bold: true };
+  capcalera.alignment = { vertical: "middle" };
+  capcalera.height = 24;
+
+  // Ocultem la columna de l'identificador.
+  full.getColumn("id").hidden = true;
+
+// Validació numèrica per a rondes, repeticions i durada.
+for (let fila = 2; fila <= 1000; fila++) {
+
+  // Rondes: enter entre 1 i 200.
+  full.getCell(`D${fila}`).dataValidation = {
+    type: "whole",
+    operator: "between",
+    allowBlank: false,
+    showErrorMessage: true,
+    errorStyle: "stop",
+    errorTitle: "Valor no vàlid",
+    error: "Les rondes han de ser un nombre enter entre 1 i 200.",
+    formulae: [1, 200]
+  };
+
+  // Repeticions: enter entre 1 i 200 o buit.
+  full.getCell(`E${fila}`).dataValidation = {
+    type: "whole",
+    operator: "between",
+    allowBlank: true,
+    showErrorMessage: true,
+    errorStyle: "stop",
+    errorTitle: "Valor no vàlid",
+    error: "Les repeticions han de ser un nombre enter entre 1 i 200.",
+    formulae: [1, 200]
+  };
+
+  // Durada: enter positiu o buit.
+  full.getCell(`G${fila}`).dataValidation = {
+    type: "whole",
+    operator: "greaterThanOrEqual",
+    allowBlank: true,
+    showErrorMessage: true,
+    errorStyle: "stop",
+    errorTitle: "Valor no vàlid",
+    error: "La durada ha de ser un nombre enter positiu.",
+    formulae: [1]
+  };
+}
+
+// Llista desplegable per al mètode.
+for (let fila = 2; fila <= 1000; fila++) {
+  full.getCell(`F${fila}`).dataValidation = {
+    type: "list",
+    allowBlank: true,
+    showErrorMessage: true,
+    errorStyle: "stop",
+    error: "Selecciona un mètode de la llista.",
+    formulae: ['"EMOM,AMRAP,For Time,Tabata,Explosiu,Piràmide"']
+  };
+}
+
+// Llista desplegable per a la unitat de durada.
+for (let fila = 2; fila <= 1000; fila++) {
+  full.getCell(`H${fila}`).dataValidation = {
+    type: "list",
+    allowBlank: false,
+    showErrorMessage: true,
+    errorStyle: "stop",
+    error: 'Selecciona "segons" o "minuts" de la llista.',
+    formulae: ['"segons,minuts"']
+  };
+}
+
+// Llistes desplegables Sí/No per als camps de registre.
+for (let fila = 2; fila <= 1000; fila++) {
+  for (const columna of ["I", "J", "K", "L", "M"]) {
+    full.getCell(`${columna}${fila}`).dataValidation = {
+      type: "list",
+      allowBlank: false,
+      showErrorMessage: true,
+      errorStyle: "stop",
+      error: 'Només es permeten els valors "Sí" o "No".',
+      formulae: ['"Sí,No"']
+    };
+  }
+}
+
+  // Activem filtres i mantenim la capçalera visible.
+  full.autoFilter = {
+    from: "A1",
+    to: `M${full.rowCount}`
+  };
+
+  full.views = [
+    { state: "frozen", ySplit: 1 }
+  ];
+
+  // Generem i descarreguem el fitxer.
+  const contingut = await llibre.xlsx.writeBuffer();
+
+  const fitxer = new Blob([contingut], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  });
+
+  const url = URL.createObjectURL(fitxer);
+  const enllac = document.createElement("a");
+  const dataAvui = new Date().toISOString().slice(0, 10);
+
+  enllac.href = url;
+  enllac.download = `biblioteca-entrenaments-${dataAvui}.xlsx`;
+
+  document.body.appendChild(enllac);
+  enllac.click();
+  enllac.remove();
+
+  URL.revokeObjectURL(url);
+});
+
+
+// --- Importar biblioteca des d'Excel ---
+
+// Llegim el valor d'una cel·la com a text.
+function obtenirTextCel·la(fila, columna) {
+  const valor = fila.getCell(columna).value;
+
+  if (valor === null || valor === undefined) {
+    return "";
+  }
+
+  if (typeof valor === "object" && valor.richText) {
+    return valor.richText.map(part => part.text).join("").trim();
+  }
+
+  return String(valor).trim();
+}
+
+
+function obtenirCampsExcel(fila) {
+  const camps = [];
+
+  const equivalencies = {
+    I: "temps",
+    J: "pes",
+    K: "variant",
+    L: "distancia",
+    M: "comentari"
+  };
+
+  for (const [columna, camp] of Object.entries(equivalencies)) {
+    const valor = obtenirTextCel·la(fila, columna);
+
+    if (valor !== "Sí" && valor !== "No") {
+      throw new Error(
+        `Fila ${fila.number}: el valor de ${camp} ha de ser Sí o No.`
+      );
+    }
+
+    if (valor === "Sí") {
+      camps.push(camp);
+    }
+  }
+
+  return camps;
+}
+
+
+// Convertim una fila d'Excel en un exercici.
+function convertirFilaExcel(fila) {
+  return {
+    id: obtenirTextCel·la(fila, "A"),
+    nom: obtenirTextCel·la(fila, "B").toUpperCase(),
+    notaPermanent: obtenirTextCel·la(fila, "C"),
+    seriesTotals: Number(fila.getCell("D").value),
+    repeticions: obtenirTextCel·la(fila, "E") === ""
+      ? null
+      : Number(fila.getCell("E").value),
+    metode: obtenirTextCel·la(fila, "F"),
+    durada: obtenirTextCel·la(fila, "G") === ""
+      ? null
+      : Number(fila.getCell("G").value),
+    unitatDurada: obtenirTextCel·la(fila, "H"),
+    camps: obtenirCampsExcel(fila)
+  };
+}
+
+
+function validarExerciciExcel(ex, numeroFila) {
+  const error = missatge => {
+    throw new Error(`Fila ${numeroFila}: ${missatge}`);
+  };
+
+  if (!ex.nom) {
+    error("Falta el nom de l'exercici.");
+  }
+
+  if (
+    !Number.isInteger(ex.seriesTotals) ||
+    ex.seriesTotals < 1 ||
+    ex.seriesTotals > 200
+  ) {
+    error("Les rondes han de ser un nombre enter entre 1 i 200.");
+  }
+
+  if (
+    ex.repeticions !== null &&
+    (!Number.isInteger(ex.repeticions) ||
+      ex.repeticions < 1 ||
+      ex.repeticions > 200)
+  ) {
+    error("Les repeticions han de ser un nombre enter entre 1 i 200.");
+  }
+
+  const metodesValids = [
+    "",
+    "EMOM",
+    "AMRAP",
+    "For Time",
+    "Tabata",
+    "Explosiu",
+    "Piràmide"
+  ];
+
+  if (!metodesValids.includes(ex.metode)) {
+    error("El mètode seleccionat no és vàlid.");
+  }
+
+  if (
+    ex.durada !== null &&
+    (!Number.isInteger(ex.durada) || ex.durada < 1)
+  ) {
+    error("La durada ha de ser un nombre enter positiu.");
+  }
+
+  if (!["segons", "minuts"].includes(ex.unitatDurada)) {
+    error("La unitat de durada ha de ser segons o minuts.");
+  }
+
+  const campsValids = [
+    "temps",
+    "pes",
+    "variant",
+    "distancia",
+    "comentari"
+  ];
+
+  if (!ex.camps.every(camp => campsValids.includes(camp))) {
+    error("Hi ha un camp de registre no vàlid.");
+  }
+
+  return true;
+}
+
+// Comprovem que no hi hagi identificadors duplicats.
+function validarIdentificadorsExcel(exercicis) {
+  const ids = new Set();
+
+  exercicis.forEach((ex, index) => {
+    if (!ex.id) return;
+
+    if (ids.has(ex.id)) {
+      throw new Error(
+        `Fila ${index + 2}: l'identificador "${ex.id}" està duplicat.`
+      );
+    }
+
+    ids.add(ex.id);
+  });
+}
+
+// Assignem identificadors als exercicis nous.
+function assignarIdsNous(exercicis) {
+  exercicis.forEach(ex => {
+    if (!ex.id) {
+      ex.id = crearId();
+    }
+  });
+}
+
+// Obrim el selector de fitxers.
+botoImportarExcel.addEventListener("click", () => {
+  fitxerImportacioExcel.click();
+});
+
+fitxerImportacioExcel.addEventListener("change", async () => {
+  const fitxer = fitxerImportacioExcel.files[0];
+
+  if (!fitxer) return;
+
+  try {
+    const llibre = new ExcelJS.Workbook();
+    await llibre.xlsx.load(await fitxer.arrayBuffer());
+
+    const full = llibre.getWorksheet("Biblioteca");
+
+    if (!full) {
+      throw new Error("El fitxer no conté el full Biblioteca.");
+    }
+    // Comprovem que les capçaleres siguin les esperades.
+const capcaleresEsperades = [
+  "ID",
+  "Nom",
+  "Nota permanent",
+  "Rondes",
+  "Repeticions",
+  "Mètode",
+  "Durada",
+  "Unitat durada",
+  "Temps",
+  "Pes",
+  "Goma / variant",
+  "Distància",
+  "Comentari"
+];
+
+for (let i = 0; i < capcaleresEsperades.length; i++) {
+  const valor = obtenirTextCel·la(full.getRow(1), i + 1);
+
+  if (valor !== capcaleresEsperades[i]) {
+    throw new Error(
+      `La capçalera de la columna ${i + 1} no és correcta. ` +
+      `S'esperava "${capcaleresEsperades[i]}".`
+    );
+  }
+}
+    // Llegim i validem tots els exercicis.
+const exercicisImportats = [];
+
+for (let numeroFila = 2; numeroFila <= full.rowCount; numeroFila++) {
+  const fila = full.getRow(numeroFila);
+
+  // Ignorem les files completament buides.
+  const teContingut = Array.from(
+    { length: 13 },
+    (_, index) => fila.getCell(index + 1).value
+  ).some(valor => valor !== null && valor !== undefined && valor !== "");
+
+  if (!teContingut) continue;
+
+  const exercici = convertirFilaExcel(fila);
+
+  validarExerciciExcel(exercici, numeroFila);
+
+  exercicisImportats.push(exercici);
+}
+
+// Comprovem que no hi hagi IDs duplicats.
+validarIdentificadorsExcel(exercicisImportats);
+if (exercicisImportats.length === 0) {
+  throw new Error("El fitxer no conté cap exercici. La biblioteca actual no s'ha modificat.");
+}
+
+
+// Confirmem la substitució de tota la biblioteca.
+const continuar = confirm(
+  `S'han trobat ${exercicisImportats.length} exercicis vàlids.\n\n` +
+  "La biblioteca actual serà substituïda completament. " +
+  "Els entrenaments registrats no es modificaran.\n\n" +
+  "Vols continuar?"
+);
+
+if (!continuar) return;
+
+// Creem una còpia de seguretat de la biblioteca actual.
+try {
+  localStorage.setItem(
+    "entrenamentBibliotecaBackupExcel",
+    JSON.stringify(biblioteca)
+  );
+} catch (error) {
+  throw new Error(
+    "No s'ha pogut crear la còpia de seguretat. " +
+    "La biblioteca actual no s'ha modificat."
+  );
+}
+
+// Assignem IDs als exercicis nous.
+assignarIdsNous(exercicisImportats);
+validarIdentificadorsExcel(exercicisImportats);
+
+// Substituïm la biblioteca actual.
+const bibliotecaAnterior = biblioteca;
+
+try {
+  biblioteca = exercicisImportats;
+  desarBiblioteca();
+} catch (error) {
+  biblioteca = bibliotecaAnterior;
+
+  try {
+    desarBiblioteca();
+  } catch (errorRestauracio) {
+    throw new Error(
+      "Error greu: no s'ha pogut desar ni restaurar la biblioteca. " +
+      "La còpia de seguretat continua guardada al navegador."
+    );
+  }
+
+  throw new Error(
+    "No s'ha pogut desar la biblioteca importada. " +
+    "S'ha restaurat la biblioteca anterior."
+  );
+}
+
+// Actualitzem les pantalles de l'aplicació.
+cancel·larEdicio();
+mostrarBiblioteca();
+mostrarSelector();
+mostrarExercicis();
+
+alert(
+  `Biblioteca importada correctament: ${biblioteca.length} exercicis.\n\n` +
+  "Els entrenaments registrats no s'han modificat."
+);
+
+  } catch (error) {
+    alert("No s'ha pogut llegir el fitxer: " + error.message);
+
+  } finally {
+    fitxerImportacioExcel.value = "";
+  }
+});
+
 
 // Elements del menú i dels panells
 const botoBiblioteca = document.getElementById("boto-biblioteca");

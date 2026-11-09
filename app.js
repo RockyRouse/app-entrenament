@@ -1831,3 +1831,40 @@ botoObrirTemporitzador.addEventListener("click", () => {
     !panellTemporitzador.hidden
   );
 });
+
+// Mantenir la pantalla encesa mentre EntrenamentApp és visible
+let bloqueigPantalla = null;
+
+async function activarBloqueigPantalla() {
+  if (!("wakeLock" in navigator)) return;
+  if (document.visibilityState !== "visible") return;
+  if (bloqueigPantalla !== null) return;
+
+  try {
+    bloqueigPantalla = await navigator.wakeLock.request("screen");
+
+    bloqueigPantalla.addEventListener("release", () => {
+      bloqueigPantalla = null;
+    });
+  } catch (error) {
+    console.log("No s'ha pogut activar el bloqueig de pantalla:", error);
+  }
+}
+
+async function desactivarBloqueigPantalla() {
+  if (bloqueigPantalla !== null) {
+    await bloqueigPantalla.release();
+    bloqueigPantalla = null;
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    activarBloqueigPantalla();
+  } else {
+    desactivarBloqueigPantalla();
+  }
+});
+
+// Activar-lo en obrir l'aplicació
+activarBloqueigPantalla();

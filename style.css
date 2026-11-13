@@ -68,6 +68,51 @@ h2 {
   margin: 0 0 8px;
 }
 
+/* Colors per tipus d'exercici */
+.exercici[class*="color-"] {
+  border-left: 6px solid transparent;
+}
+
+.exercici.color-blau {
+  border-left-color: #4285d4;
+  background: #eef5fd;
+}
+
+.exercici.color-verd {
+  border-left-color: #39965b;
+  background: #edf7f0;
+}
+
+.exercici.color-vermell {
+  border-left-color: #d9534f;
+  background: #fdf0ef;
+}
+
+.exercici.color-taronja {
+  border-left-color: #e58a32;
+  background: #fff5e9;
+}
+
+.exercici.color-groc {
+  border-left-color: #d4ae22;
+  background: #fffbea;
+}
+
+.exercici.color-lila {
+  border-left-color: #8963bd;
+  background: #f5f0fb;
+}
+
+.exercici.color-turquesa {
+  border-left-color: #269c9c;
+  background: #edf8f8;
+}
+
+.exercici.color-rosa {
+  border-left-color: #d66b9b;
+  background: #fcf0f5;
+}
+
 .comptador {
   display: flex;
   align-items: center;
@@ -147,6 +192,15 @@ button:disabled {
   background: white;
 }
 
+/* Desplegable compacte per afegir exercicis */
+#selector-biblioteca select {
+  font-size: 13px;
+  padding: 8px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #formulari-exercici label {
   font-weight: bold;
   margin-top: 5px;
@@ -169,6 +223,51 @@ button:disabled {
 .targeta-biblioteca h3 {
   margin: 0 0 8px;
   overflow-wrap: anywhere;
+}
+
+/* Colors per tipus d'exercici a la biblioteca */
+.targeta-biblioteca[class*="color-"] {
+  border-left: 6px solid transparent;
+}
+
+.targeta-biblioteca.color-blau {
+  border-left-color: #4285d4;
+  background: #eef5fd;
+}
+
+.targeta-biblioteca.color-verd {
+  border-left-color: #39965b;
+  background: #edf7f0;
+}
+
+.targeta-biblioteca.color-vermell {
+  border-left-color: #d9534f;
+  background: #fdf0ef;
+}
+
+.targeta-biblioteca.color-taronja {
+  border-left-color: #e58a32;
+  background: #fff5e9;
+}
+
+.targeta-biblioteca.color-groc {
+  border-left-color: #d4ae22;
+  background: #fffbea;
+}
+
+.targeta-biblioteca.color-lila {
+  border-left-color: #8963bd;
+  background: #f5f0fb;
+}
+
+.targeta-biblioteca.color-turquesa {
+  border-left-color: #269c9c;
+  background: #edf8f8;
+}
+
+.targeta-biblioteca.color-rosa {
+  border-left-color: #d66b9b;
+  background: #fcf0f5;
 }
 
 .accions-biblioteca {
@@ -206,6 +305,52 @@ button:disabled {
     flex: 1;
   }
 }
+
+/* Botons de gestió de biblioteca */
+#panell-gestio-biblioteca .accions-biblioteca {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#boto-exportar-excel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+#boto-importar-excel {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#boto-exportar-biblioteca {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#boto-importar-biblioteca {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#panell-gestio-biblioteca .accions-biblioteca button {
+  width: 100%;
+  justify-self: stretch;
+}
+
+/* Excel més alts */
+#boto-exportar-excel,
+#boto-importar-excel {
+  min-height: 64px;
+  padding: 16px 12px;
+}
+
+/* JSON més baixos */
+#boto-exportar-biblioteca,
+#boto-importar-biblioteca {
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
 .registres-series {
   margin-top: 16px;
   padding-top: 12px;
@@ -417,7 +562,7 @@ button:disabled {
   flex: 1;
   min-width: 0;
 }
-.exercici.completat {
+.exercici.completat:not([class*="color-"]) {
   border-left: 4px solid #24734b;
 }
 .exercici.en-curs {
@@ -869,4 +1014,40 @@ button:disabled {
 .boto-temporitzador.actiu {
   background: #d18b38;
   color: white;
+}
+
+/* Avís visual del compte enrere */
+.avis-temporitzador {
+  background: #b3261e;
+  color: white;
+  padding: 24px 16px;
+  margin-top: 16px;
+  border-radius: 12px;
+  text-align: center;
+  animation: pols-avis 1s infinite alternate;
+}
+
+.avis-temporitzador h2 {
+  font-size: 28px;
+  margin: 0 0 20px;
+  font-weight: 800;
+}
+
+#boto-aturar-avis {
+  background: white;
+  color: #b3261e;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 14px 24px;
+  border-radius: 10px;
+  width: 100%;
+}
+
+@keyframes pols-avis {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.7;
+  }
 }

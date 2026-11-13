@@ -42,7 +42,12 @@
         Compte enrere
       </button>
     </div>
-
+    <div id="avis-temporitzador" class="avis-temporitzador" hidden>
+      <h2>⏰ TEMPS ACABAT!</h2>
+      <button id="boto-aturar-avis" type="button">
+        Aturar avís
+      </button>
+    </div>
     <div id="temporitzador-actiu" hidden>
 
       <div class="temporitzador-temps" id="temps-temporitzador">
@@ -157,6 +162,19 @@
           <option value="Tabata">Tabata</option>
           <option value="Explosiu">Explosiu</option>
           <option value="Piràmide">Piràmide</option>
+                </select>
+
+        <label for="color-exercici">Color del tipus d'exercici</label>
+        <select id="color-exercici">
+          <option value="">Sense color</option>
+          <option value="blau">Blau</option>
+          <option value="verd">Verd</option>
+          <option value="vermell">Vermell</option>
+          <option value="taronja">Taronja</option>
+          <option value="groc">Groc</option>
+          <option value="lila">Lila</option>
+          <option value="turquesa">Turquesa</option>
+          <option value="rosa">Rosa</option>
         </select>
 
         <label for="durada-exercici">Durada / referència temporal (opcional)</label>
@@ -199,10 +217,25 @@
       <p>Exporta o importa la biblioteca d'exercicis sense modificar els entrenaments registrats.</p>
 
       <div class="accions-biblioteca">
-        <button type="button" id="boto-exportar-biblioteca" class="boto-fet">Exportar biblioteca</button>
-        <button type="button" id="boto-importar-biblioteca" class="boto-secundari">Importar biblioteca</button>
-        <input type="file" id="fitxer-importacio-biblioteca" accept=".json,application/json" hidden>
-      </div>
+          <button type="button" id="boto-exportar-biblioteca" class="boto-fet">Exportar (JSON)</button>
+          <button type="button" id="boto-importar-biblioteca" class="boto-secundari">Importar (JSON)</button>
+          <input type="file" id="fitxer-importacio-biblioteca" accept=".json,application/json" hidden>
+
+          <button type="button" id="boto-exportar-excel" class="boto-fet">
+             Exportar Excel
+          </button>
+
+          <button type="button" id="boto-importar-excel" class="boto-secundari">
+             Importar Excel
+          </button>
+
+          <input
+             type="file"
+             id="fitxer-importacio-excel"
+             accept=".xlsx"
+             hidden
+           >
+       </div>
     </section>
 
     <section id="panell-copia-seguretat" class="seccio-biblioteca" hidden>
@@ -210,22 +243,9 @@
       <p>Desa una còpia de la biblioteca i de tots els entrenaments per poder recuperar-los si cal.</p>
 
       <div class="accions-biblioteca">
-        <button type="button" id="boto-exportar" class="boto-fet">Exportar còpia de seguretat</button>
-        <button type="button" id="boto-importar" class="boto-secundari">Importar còpia de seguretat</button>
-        <button type="button" id="boto-exportar-excel" class="boto-fet">
-            Exportar a Excel
-        </button>
-
-        <button type="button" id="boto-importar-excel" class="boto-secundari">
-             Importar des d'Excel
-        </button>
-
-        <input
-            type="file"
-            id="fitxer-importacio-excel"
-            accept=".xlsx"
-            hidden
-         >
+        <button type="button" id="boto-exportar" class="boto-fet">Exportar</button>
+        <button type="button" id="boto-importar" class="boto-secundari">Importar</button>
+        
         <input type="file" id="fitxer-importacio" accept=".json,application/json" hidden>
       </div>
     </section>

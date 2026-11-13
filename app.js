@@ -55,6 +55,8 @@ const botoObrirTemporitzador = document.getElementById("boto-obrir-temporitzador
 const tempsTemporitzador = document.getElementById("temps-temporitzador");
 const botoIniciarTemporitzador = document.getElementById("boto-iniciar-temporitzador");
 const botoReiniciarTemporitzador = document.getElementById("boto-reiniciar-temporitzador");
+const avisTemporitzador = document.getElementById("avis-temporitzador");
+const botoAturarAvis = document.getElementById("boto-aturar-avis");
 
 // Configuració del temporitzador
 const botoCronometre = document.getElementById("boto-cronometre");
@@ -96,13 +98,6 @@ function desarPresetsTemporitzador() {
   );
 }
 
-function netejarPresetSobrer() {
-  llistaPresets = llistaPresets.filter(segons => segons !== 31);
-  desarPresetsTemporitzador();
-}
-
-netejarPresetSobrer();
-
 let anyCalendari;
 let mesCalendari;
 // Estat del temporitzador
@@ -114,6 +109,8 @@ let tipusTemporitzador = null;
 let temporitzadorEnMarxa = false;
 let compteEnrereAcabat = false;
 let contextAudioTemporitzador = null;
+let intervalAvisTemporitzador = null;
+let avisTemporitzadorActiu = false;
 
 function inicialitzarCalendari() {
   const dataInicial = campData.value
@@ -286,23 +283,62 @@ function emetreSoTemporitzador() {
       contextAudioTemporitzador.resume();
     }
 
-    const oscil·lador = contextAudioTemporitzador.createOscillator();
-    const volum = contextAudioTemporitzador.createGain();
+    const ara = contextAudioTemporitzador.currentTime;
 
-    oscil·lador.type = "sine";
-    oscil·lador.frequency.value = 880;
+    const tons = [
+      { frequencia: 880, inici: 0 },
+      { frequencia: 1175, inici: 0.4 },
+      { frequencia: 880, inici: 0.8 }
+    ];
 
-    volum.gain.value = 0.2;
+    tons.forEach(ton => {
+      const oscil·lador = contextAudioTemporitzador.createOscillator();
+      const volum = contextAudioTemporitzador.createGain();
 
-    oscil·lador.connect(volum);
-    volum.connect(contextAudioTemporitzador.destination);
+      oscil·lador.type = "square";
+      oscil·lador.frequency.value = ton.frequencia;
 
-    oscil·lador.start();
-    oscil·lador.stop(contextAudioTemporitzador.currentTime + 0.5);
+      volum.gain.setValueAtTime(0, ara + ton.inici);
+      volum.gain.linearRampToValueAtTime(0.35, ara + ton.inici + 0.03);
+      volum.gain.setValueAtTime(0.35, ara + ton.inici + 0.3);
+      volum.gain.linearRampToValueAtTime(0, ara + ton.inici + 0.35);
+
+      oscil·lador.connect(volum);
+      volum.connect(contextAudioTemporitzador.destination);
+
+      oscil·lador.start(ara + ton.inici);
+      oscil·lador.stop(ara + ton.inici + 0.36);
+    });
 
   } catch (error) {
     console.log("No s'ha pogut reproduir l'avís sonor:", error);
   }
+}
+
+function iniciarAvisTemporitzador() {
+  if (avisTemporitzadorActiu) return;
+
+  avisTemporitzadorActiu = true;
+  avisTemporitzador.hidden = false;
+
+  emetreSoTemporitzador();
+
+  intervalAvisTemporitzador = setInterval(() => {
+    if (avisTemporitzadorActiu) {
+      emetreSoTemporitzador();
+    }
+  }, 1500);
+}
+
+function aturarAvisTemporitzador() {
+  avisTemporitzadorActiu = false;
+
+  if (intervalAvisTemporitzador) {
+    clearInterval(intervalAvisTemporitzador);
+    intervalAvisTemporitzador = null;
+  }
+
+  avisTemporitzador.hidden = true;
 }
 
 function formatarTemps(segons) {
@@ -334,12 +370,11 @@ function actualitzarPantallaTemporitzador() {
   tempsTemporitzador.textContent = formatarTemps(tempsMostrar);
 
   if (tipusTemporitzador === "compte-enrere" && tempsMostrar <= 0) {
-  aturarTemporitzador();
-  compteEnrereAcabat = true;
-  botoIniciarTemporitzador.textContent = "Reiniciar";
-  emetreSoTemporitzador();
-  alert("Temps acabat!");
-}
+    aturarTemporitzador();
+    compteEnrereAcabat = true;
+    botoIniciarTemporitzador.textContent = "Reiniciar";
+    iniciarAvisTemporitzador();
+  }
 }
 
 function aturarTemporitzador() {
@@ -377,6 +412,7 @@ function iniciarTemporitzador() {
 }
 
 function reiniciarTemporitzador() {
+  aturarAvisTemporitzador();
   aturarTemporitzador();
 
   tempsAcumulat = 0;
@@ -393,6 +429,7 @@ function reiniciarTemporitzador() {
 }
 
 function tancarTemporitzador() {
+  aturarAvisTemporitzador();
   aturarTemporitzador();
 
   tempsAcumulat = 0;
@@ -557,6 +594,7 @@ const campTotal = document.getElementById("total-series");
 const campNotaPermanent = document.getElementById("nota-permanent");
 const campRepeticions = document.getElementById("repeticions-exercici");
 const campMetode = document.getElementById("metode-exercici");
+const campColor = document.getElementById("color-exercici");
 const campDurada = document.getElementById("durada-exercici");
 const campUnitatDurada = document.getElementById("unitat-durada");
 const botoDesar = document.getElementById("boto-desar-exercici");
@@ -880,17 +918,6 @@ if (!Array.isArray(ex.camps)) {
   ex.camps = teNotesAntigues ? ["comentari"] : [];
 }
 
-if (!Array.isArray(ex.registresSeries)) {
-  ex.registresSeries = Array.from(
-    { length: total },
-    () => ({})
-  );
-}
-
-while (ex.registresSeries.length < total) {
-  ex.registresSeries.push({});
-}
-
 // Conservem les anotacions de text de la versió anterior.
 ex.registresSeries = ex.registresSeries.map(valor => {
   if (typeof valor === "string") {
@@ -938,6 +965,13 @@ targeta.className = acabat
     ? "exercici en-curs"
     : "exercici";
 
+const exerciciBiblioteca = biblioteca.find(
+  item => item.id === ex.exerciciId
+);
+
+if (exerciciBiblioteca?.color) {
+  targeta.classList.add(`color-${exerciciBiblioteca.color}`);
+}
     const desplegat = exercicisPlegats.has(ex.instanciaId)
        ? false
        : acabat
@@ -1019,9 +1053,9 @@ targeta.innerHTML = `
     title="Moure avall"
   >↓</button>
 
-  <button class="boto-secundari" data-accio="treure">
+  <button class="boto-secundari" data-accio="treure"
+    ${bloquejat ? "disabled" : ""}>
     Treure d'aquest dia
-    ${bloquejat ? "disabled" : ""}
   </button>
 </div>
 
@@ -1280,6 +1314,10 @@ function mostrarBiblioteca() {
     const targeta = document.createElement("article");
     targeta.className = "targeta-biblioteca";
 
+    if (ex.color) {
+      targeta.classList.add(`color-${ex.color}`);
+    }
+
     targeta.innerHTML = `
       <h3>${escaparHTML(ex.nom)}</h3>
       <p>${escaparHTML(resumExercici(ex))}</p>
@@ -1359,6 +1397,7 @@ formulari.addEventListener("submit", event => {
     seriesTotals: total,
     repeticions,
     metode,
+    color: campColor.value,
     durada,
     unitatDurada,
     camps: [...campsSeleccionats]
@@ -1390,6 +1429,7 @@ function prepararEdicio(ex) {
   campTotal.value = ex.seriesTotals;
   campRepeticions.value = ex.repeticions ?? "";
   campMetode.value = ex.metode || "";
+  campColor.value = ex.color || "";
   campDurada.value = ex.durada ?? "";
   campUnitatDurada.value = ex.unitatDurada || "segons";
 
@@ -1414,6 +1454,7 @@ function duplicarExercici(ex) {
   biblioteca.push(copia);
   desarBiblioteca();
   mostrarBiblioteca();
+  mostrarSelector();
 }
 
 function cancel·larEdicio() {
@@ -1423,6 +1464,7 @@ function cancel·larEdicio() {
 
   campRepeticions.value = "";
   campMetode.value = "";
+  campColor.value = "";
   campDurada.value = "";
   campUnitatDurada.value = "segons";
 
@@ -1469,6 +1511,7 @@ function escaparHTML(text) {
 campData.addEventListener("change", () => {
   mostrarExercicis();
   mostrarEstatEntrenament();
+  mostrarSelector();
 });
 
 // Iniciem la pantalla.
@@ -1722,7 +1765,8 @@ botoExportarExcel.addEventListener("click", async () => {
     { header: "Pes", key: "pes", width: 12 },
     { header: "Goma / variant", key: "variant", width: 18 },
     { header: "Distància", key: "distancia", width: 14 },
-    { header: "Comentari", key: "comentari", width: 14 }
+    { header: "Comentari", key: "comentari", width: 14 },
+    { header: "Color", key: "color", width: 16 }
   ];
 
   // Afegim tots els exercicis de la biblioteca.
@@ -1742,7 +1786,8 @@ botoExportarExcel.addEventListener("click", async () => {
       pes: camps.includes("pes") ? "Sí" : "No",
       variant: camps.includes("variant") ? "Sí" : "No",
       distancia: camps.includes("distancia") ? "Sí" : "No",
-      comentari: camps.includes("comentari") ? "Sí" : "No"
+      comentari: camps.includes("comentari") ? "Sí" : "No",
+      color: ex.color || ""
     });
   });
 
@@ -1833,10 +1878,22 @@ for (let fila = 2; fila <= 1000; fila++) {
   }
 }
 
+// Llista desplegable per al color.
+for (let fila = 2; fila <= 1000; fila++) {
+  full.getCell(`N${fila}`).dataValidation = {
+    type: "list",
+    allowBlank: true,
+    showErrorMessage: true,
+    errorStyle: "stop",
+    error: "Selecciona un color de la llista.",
+    formulae: ['"blau,verd,vermell,taronja,groc,lila,turquesa,rosa"']
+  };
+}
+
   // Activem filtres i mantenim la capçalera visible.
   full.autoFilter = {
     from: "A1",
-    to: `M${full.rowCount}`
+    to: `N${full.rowCount}`
   };
 
   full.views = [
@@ -1927,7 +1984,8 @@ function convertirFilaExcel(fila) {
       ? null
       : Number(fila.getCell("G").value),
     unitatDurada: obtenirTextCel·la(fila, "H"),
-    camps: obtenirCampsExcel(fila)
+    camps: obtenirCampsExcel(fila),
+    color: obtenirTextCel·la(fila, "N") || ""
   };
 }
 
@@ -1994,7 +2052,21 @@ function validarExerciciExcel(ex, numeroFila) {
   if (!ex.camps.every(camp => campsValids.includes(camp))) {
     error("Hi ha un camp de registre no vàlid.");
   }
+const colorsValids = [
+  "",
+  "blau",
+  "verd",
+  "vermell",
+  "taronja",
+  "groc",
+  "lila",
+  "turquesa",
+  "rosa"
+];
 
+if (!colorsValids.includes(ex.color)) {
+  error("El color seleccionat no és vàlid.");
+}
   return true;
 }
 
@@ -2060,6 +2132,11 @@ const capcaleresEsperades = [
   "Comentari"
 ];
 
+// Comprovem si el fitxer inclou la columna Color.
+const teColumnaColor =
+  obtenirTextCel·la(full.getRow(1), 14) === "Color";
+
+// Validem les capçaleres obligatòries.
 for (let i = 0; i < capcaleresEsperades.length; i++) {
   const valor = obtenirTextCel·la(full.getRow(1), i + 1);
 
@@ -2070,6 +2147,17 @@ for (let i = 0; i < capcaleresEsperades.length; i++) {
     );
   }
 }
+
+// Si hi ha una columna 14, ha de ser Color.
+if (
+  obtenirTextCel·la(full.getRow(1), 14) !== "" &&
+  !teColumnaColor
+) {
+  throw new Error(
+    'La capçalera de la columna 14 ha de ser "Color".'
+  );
+}
+
     // Llegim i validem tots els exercicis.
 const exercicisImportats = [];
 
@@ -2078,7 +2166,7 @@ for (let numeroFila = 2; numeroFila <= full.rowCount; numeroFila++) {
 
   // Ignorem les files completament buides.
   const teContingut = Array.from(
-    { length: 13 },
+    { length: 14 },
     (_, index) => fila.getCell(index + 1).value
   ).some(valor => valor !== null && valor !== undefined && valor !== "");
 
@@ -2288,6 +2376,10 @@ botoIniciarTemporitzador.addEventListener("click", () => {
   } else {
     iniciarTemporitzador();
   }
+});
+
+botoAturarAvis.addEventListener("click", () => {
+  aturarAvisTemporitzador();
 });
 
 botoReiniciarTemporitzador.addEventListener("click", reiniciarTemporitzador);

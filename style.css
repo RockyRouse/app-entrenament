@@ -600,6 +600,20 @@ button:disabled {
   border-color: #527da5;
 }
 
+.opcions-menu-doble {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.opcions-menu-doble button {
+  flex: 1;
+  min-height: 0;
+  padding: 3px;
+  font-size: 11px;
+}
+
 .capcalera-exercici {
   display: flex;
   align-items: center;
@@ -1050,4 +1064,171 @@ button:disabled {
   to {
     opacity: 0.7;
   }
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Separació entre Màximes i Estadístiques */
+.separador-registres {
+  margin: 24px 0;
+  border-top: 1px solid #d5dbe2;
+}
+
+/* Pastilla de cada màxima */
+.targeta-maxima {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  overflow-x: auto;
+  background: white;
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px #0000000d;
+}
+
+.accions-maxima {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.accions-maxima {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.targeta-maxima button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #f0f3f6;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.targeta-maxima h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.valor-maxima {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #263b50;
+}
+
+.separador-maxima {
+  color: #a0aab5;
+  font-size: 14px;
+}
+
+.data-maxima {
+  font-size: 14px;
+  font-weight: 600;
+  color: #626d79;
+}
+
+
+/* Pastilla del formulari */
+.formulari-maxima {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px #0000000d;
+}
+
+.formulari-maxima h3 {
+  margin: 0 0 12px;
+}
+
+.formulari-maxima label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.formulari-maxima input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #cbd3dc;
+  border-radius: 7px;
+  font-size: 14px;
+}
+
+.formulari-maxima button {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  background: #527da5;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#boto-mostrar-formulari-maxima {
+  background: #527da5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px #00000020;
+  display: block;
+  margin-left: auto;
+}
+
+.ordenacio-biblioteca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.ordenacio-biblioteca button {
+  margin-left: auto;
+}
+
+.ordenacio-biblioteca select,
+.ordenacio-biblioteca button {
+  width: 180px;
+  box-sizing: border-box;
+}
+
+.ordenacio-biblioteca button {
+  margin-left: auto;
+}
+
+.ordenacio-biblioteca label {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ordenacio-biblioteca button {
+  padding: 8px 10px;
+  font-size: 14px;
+  white-space: nowrap;
 }

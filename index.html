@@ -22,12 +22,16 @@
 
   <nav id="menu-principal" class="menu-principal">
 
-    <div class="opcions-menu">
-      <button type="button" id="boto-calendari">Calendari</button>
-      <button type="button" id="boto-ultim-entrenament">Últim entrenament</button>
-      <button type="button" id="boto-biblioteca">Biblioteca</button>
-      <button type="button" id="boto-gestio-dades">Gestió de dades</button>
-    </div>
+     <div class="opcions-menu">
+       <button type="button" id="boto-calendari">Calendari</button>
+       <button type="button" id="boto-ultim-entrenament">Últim entrenament</button>
+       <button type="button" id="boto-biblioteca">Biblioteca</button>
+
+       <div class="opcions-menu-doble">
+          <button type="button" id="boto-registres">Registres</button>
+          <button type="button" id="boto-gestio-dades">Gestió de dades</button>
+        </div>
+     </div>
 
   </nav>
 
@@ -131,27 +135,40 @@
     </section>
 
 
-    <section id="panell-biblioteca" class="seccio-biblioteca" hidden>
-      <h2>Biblioteca d'exercicis</h2>
-      <p>Aquí pots preparar i mantenir els teus exercicis habituals.</p>
+   <section id="panell-biblioteca" class="seccio-biblioteca" hidden>
+  <h2>Biblioteca d'exercicis</h2>
 
-      <form id="formulari-exercici">
-        <input type="hidden" id="id-exercici">
+  <div class="ordenacio-biblioteca">
+    <label for="ordenar-biblioteca">Ordenar per:</label>
+    <select id="ordenar-biblioteca">
+      <option value="nom-asc">Nom (A–Z)</option>
+      <option value="nom-desc">Nom (Z–A)</option>
+      <option value="tipus">Tipus d'exercici</option>
+    </select>
 
-        <label for="nom-exercici">Nom de l'exercici</label>
-        <input type="text" id="nom-exercici" placeholder="Ex. Ring Muscle Up" required>
+    <button type="button" id="boto-mostrar-formulari-exercici" class="boto-fet">
+      + Afegir exercici
+    </button>
+  </div>
 
-        <div class="volum-exercici">
-          <div>
-            <label for="total-series">Nombre de rondes</label>
-            <input type="number" id="total-series" min="1" max="200" value="10" required>
-          </div>
+  <div id="contenidor-formulari-exercici" hidden>
+    <form id="formulari-exercici">
+      <input type="hidden" id="id-exercici">
 
-          <div>
-            <label for="repeticions-exercici">Repeticions per ronda</label>
-            <input type="number" id="repeticions-exercici" min="1" max="200" placeholder="Opcional">
-          </div>
+      <label for="nom-exercici">Nom de l'exercici</label>
+      <input type="text" id="nom-exercici" placeholder="Ex. Ring Muscle Up" required>
+
+      <div class="volum-exercici">
+        <div>
+          <label for="total-series">Nombre de rondes</label>
+          <input type="number" id="total-series" min="1" max="200" value="10" required>
         </div>
+
+        <div>
+          <label for="repeticions-exercici">Repeticions per ronda</label>
+          <input type="number" id="repeticions-exercici" min="1" max="200" placeholder="Opcional">
+        </div>
+      </div>
 
         <label for="metode-exercici">Mètode de treball</label>
         <select id="metode-exercici">
@@ -164,18 +181,18 @@
           <option value="Piràmide">Piràmide</option>
                 </select>
 
-        <label for="color-exercici">Color del tipus d'exercici</label>
+        <label for="color-exercici">Tipus d'exercici</label>
         <select id="color-exercici">
-          <option value="">Sense color</option>
-          <option value="blau">Blau</option>
-          <option value="verd">Verd</option>
-          <option value="vermell">Vermell</option>
-          <option value="taronja">Taronja</option>
-          <option value="groc">Groc</option>
-          <option value="lila">Lila</option>
-          <option value="turquesa">Turquesa</option>
-          <option value="rosa">Rosa</option>
-        </select>
+             <option value="">Sense categoria</option>
+             <option value="blau">ABS</option>
+             <option value="verd">Força</option>
+             <option value="vermell">Màxima</option>
+             <option value="taronja">Explosiu</option>
+             <option value="groc">Mobilitat</option>
+             <option value="lila">WOD</option>
+             <option value="turquesa">Cames</option>
+             <option value="rosa">Calories</option>
+         </select>
 
         <label for="durada-exercici">Durada / referència temporal (opcional)</label>
         <div class="durada-exercici">
@@ -208,7 +225,7 @@
           Cancel·lar edició
         </button>
       </form>
-
+      </div>
       <div id="llista-biblioteca"></div>
     </section>
 
@@ -250,7 +267,31 @@
       </div>
     </section>
 
-    <section id="panell-estadistiques" class="seccio-biblioteca" hidden>
+    <section id="panell-registres" class="seccio-biblioteca" hidden>
+        <h2>Màximes</h2>
+        <p>Registra les teves millors marques per exercici.</p>
+
+        <div id="llista-maximes"></div>
+         <button type="button" id="boto-mostrar-formulari-maxima">
+          + Afegir màxima
+         </button>
+
+        <div class="formulari-maxima" hidden>
+            <h3>Afegir màxima</h3>
+
+             <label for="nom-maxima">Exercici</label>
+             <input type="text" id="nom-maxima" placeholder="Ex. Ring Muscle Up">
+
+             <label for="valor-maxima">Marca màxima</label>
+             <input type="text" id="valor-maxima" placeholder="Ex. +10 kg, 5 repeticions, 15 s">
+
+             <label for="data-maxima">Data</label>
+             <input type="date" id="data-maxima">
+
+             <button type="button" id="boto-desar-maxima">Desar màxima</button>
+         </div>
+
+     <div class="separador-registres"></div>
       <h2>Estadístiques</h2>
       <p>Consulta el resum de la teva activitat i l'evolució dels entrenaments.</p>
 

@@ -588,6 +588,16 @@ botoMesSeguent.addEventListener("click", () => {
 const selectorBiblioteca = document.getElementById("selector-biblioteca");
 const llistaBiblioteca = document.getElementById("llista-biblioteca");
 const formulari = document.getElementById("formulari-exercici");
+const contenidorFormulariExercici = document.getElementById("contenidor-formulari-exercici");
+const botoMostrarFormulariExercici = document.getElementById("boto-mostrar-formulari-exercici");
+botoMostrarFormulariExercici.addEventListener("click", () => {
+  if (contenidorFormulariExercici.hidden) {
+    contenidorFormulariExercici.hidden = false;
+    botoMostrarFormulariExercici.textContent = "Cancel·lar";
+  } else {
+    cancel·larEdicio();
+  }
+});
 const campId = document.getElementById("id-exercici");
 const campNom = document.getElementById("nom-exercici");
 const campTotal = document.getElementById("total-series");
@@ -620,6 +630,7 @@ function llegirDades(clau, valorPerDefecte) {
 
 let biblioteca = llegirDades(CLAU_BIBLIOTECA, null);
 let entrenaments = llegirDades(CLAU_ENTRENAMENTS, {});
+let maximes = JSON.parse(localStorage.getItem("maximes")) || [];
 
 if (!Array.isArray(biblioteca)) {
   biblioteca = exercicisInicials.map(ex => ({ ...ex }));
@@ -679,6 +690,102 @@ function desarEntrenaments() {
 }
 
 migrarEntrenamentsAntics();
+
+function desarMaximes() {
+  localStorage.setItem("maximes", JSON.stringify(maximes));
+}
+
+function editarMaxima(index) {
+  const maxima = maximes[index];
+
+  indexMaximaEditant = index;
+
+  document.getElementById("nom-maxima").value = maxima.nom;
+  document.getElementById("valor-maxima").value = maxima.valor;
+  document.getElementById("data-maxima").value = maxima.data;
+
+  formulariMaxima.hidden = false;
+  botoMostrarFormulariMaxima.textContent = "Cancel·lar";
+}
+
+function eliminarMaxima(index) {
+  const maxima = maximes[index];
+
+  if (!confirm(`Vols eliminar la màxima de ${maxima.nom}?`)) {
+    return;
+  }
+
+  maximes.splice(index, 1);
+
+  desarMaximes();
+  mostrarMaximes();
+}
+
+function mostrarMaximes() {
+  const llista = document.getElementById("llista-maximes");
+  llista.innerHTML = "";
+
+  if (maximes.length === 0) {
+    llista.textContent = "Encara no tens cap màxima registrada.";
+    return;
+  }
+
+  maximes.forEach((maxima, index) => {
+    const targeta = document.createElement("div");
+    targeta.className = "targeta-maxima";
+    
+    const filaSuperior = document.createElement("div");
+    filaSuperior.className = "fila-maxima-superior";
+
+    const accions = document.createElement("div");
+    accions.className = "accions-maxima";
+
+    const nom = document.createElement("h3");
+    nom.textContent = maxima.nom;
+    
+    const separadorNom = document.createElement("span");
+    separadorNom.className = "separador-maxima";
+    separadorNom.textContent = "|";
+    
+    const info = document.createElement("div");
+    info.className = "info-maxima";
+
+    const valor = document.createElement("p");
+    valor.className = "valor-maxima";
+    valor.textContent = maxima.valor;
+
+    const separador = document.createElement("span");
+    separador.className = "separador-maxima";
+    separador.textContent = "|";
+
+    const data = document.createElement("span");
+    data.className = "data-maxima";
+    const parts = maxima.data.split("-");
+    data.textContent = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+    info.append(valor, separador, data);
+
+    const botoEditar = document.createElement("button");
+    botoEditar.type = "button";
+    botoEditar.textContent = "✏️";
+    botoEditar.title = "Editar màxima";
+    botoEditar.addEventListener("click", () => {
+      editarMaxima(index);
+    });
+
+    const botoEliminar = document.createElement("button");
+    botoEliminar.type = "button";
+    botoEliminar.textContent = "🗑️";
+    botoEliminar.title = "Eliminar màxima";
+    botoEliminar.addEventListener("click", () => {
+      eliminarMaxima(index);
+    });
+
+    accions.append(botoEditar, botoEliminar);
+    targeta.append(nom, separadorNom, valor, separador, data, accions);
+    llista.appendChild(targeta);
+  });
+}
 
 // Obtenim el registre de la data seleccionada.
 function obtenirEntrenament() {
@@ -839,6 +946,62 @@ botoDesbloquejarEntrenament.addEventListener("click", () => {
   mostrarExercicis();
   mostrarSelector();
   mostrarBiblioteca();
+});
+
+// Mostrar o amagar el formulari de màximes
+const botoMostrarFormulariMaxima = document.getElementById("boto-mostrar-formulari-maxima");
+const formulariMaxima = document.querySelector(".formulari-maxima");
+
+botoMostrarFormulariMaxima.addEventListener("click", () => {
+    if (formulariMaxima.hidden) {
+    indexMaximaEditant = null;
+    document.getElementById("nom-maxima").value = "";
+    document.getElementById("valor-maxima").value = "";
+    document.getElementById("data-maxima").value = "";
+  }
+  formulariMaxima.hidden = !formulariMaxima.hidden;
+
+  botoMostrarFormulariMaxima.textContent = formulariMaxima.hidden
+    ? "+ Afegir màxima"
+    : "Cancel·lar";
+});
+
+// Desar una màxima
+document.getElementById("boto-desar-maxima").addEventListener("click", () => {
+  const nom = document.getElementById("nom-maxima").value.trim().toUpperCase();
+  const valor = document.getElementById("valor-maxima").value.trim();
+  const data = document.getElementById("data-maxima").value;
+
+  if (!nom || !valor || !data) {
+    alert("Omple tots els camps abans de desar.");
+    return;
+  }
+
+  const novaMaxima = { nom, valor, data };
+
+if (indexMaximaEditant !== null) {
+  maximes[indexMaximaEditant] = novaMaxima;
+  indexMaximaEditant = null;
+} else {
+  const index = maximes.findIndex(
+    maxima => maxima.nom.toLowerCase() === nom.toLowerCase()
+  );
+
+  if (index !== -1) {
+    maximes[index] = novaMaxima;
+  } else {
+    maximes.push(novaMaxima);
+  }
+}
+
+  desarMaximes();
+  mostrarMaximes();
+
+  document.getElementById("nom-maxima").value = "";
+  document.getElementById("valor-maxima").value = "";
+  document.getElementById("data-maxima").value = "";
+  formulariMaxima.hidden = true;
+  botoMostrarFormulariMaxima.textContent = "+ Afegir màxima";
 });
 
 // Mostra els exercicis de l'últim entrenament anterior a la data seleccionada.
@@ -1276,9 +1439,24 @@ function mostrarSelector() {
   select.id = "seleccio-exercici";
   select.setAttribute("aria-label", "Selecciona un exercici");
 
-  [...biblioteca]
-      .sort((a, b) => a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" }))
-      .forEach(ex => {
+ const criteri = document.getElementById("ordenar-biblioteca").value;
+
+  const bibliotecaOrdenada = [...biblioteca].sort((a, b) => {
+    if (criteri === "nom-desc") {
+      return b.nom.localeCompare(a.nom, "ca", { sensitivity: "base" });
+    }
+
+    if (criteri === "tipus") {
+      const comparacioColor = (a.color || "").localeCompare(b.color || "");
+      return comparacioColor !== 0
+        ? comparacioColor
+        : a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" });
+    }
+
+    return a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" });
+  });
+
+  bibliotecaOrdenada.forEach(ex => {
     const opcio = document.createElement("option");
     opcio.value = ex.id;
     opcio.textContent = `${ex.nom} — ${resumExercici(ex)}`;
@@ -1308,9 +1486,24 @@ function mostrarBiblioteca() {
     return;
   }
 
-  [...biblioteca]
-     .sort((a, b) => a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" }))
-     .forEach(ex => {
+    const criteri = ordenarBiblioteca.value;
+
+  const bibliotecaOrdenada = [...biblioteca].sort((a, b) => {
+    if (criteri === "nom-desc") {
+      return b.nom.localeCompare(a.nom, "ca", { sensitivity: "base" });
+    }
+
+    if (criteri === "tipus") {
+      const comparacioColor = (a.color || "").localeCompare(b.color || "");
+      return comparacioColor !== 0
+        ? comparacioColor
+        : a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" });
+    }
+
+    return a.nom.localeCompare(b.nom, "ca", { sensitivity: "base" });
+  });
+
+  bibliotecaOrdenada.forEach(ex => {
     const targeta = document.createElement("article");
     targeta.className = "targeta-biblioteca";
 
@@ -1355,6 +1548,14 @@ function mostrarBiblioteca() {
     llistaBiblioteca.appendChild(targeta);
   });
 }
+const ordenarBiblioteca = document.getElementById("ordenar-biblioteca");
+
+ordenarBiblioteca.addEventListener("change", () => {
+  mostrarBiblioteca();
+});
+
+
+
 
 // Guardem un exercici nou o actualitzem el seleccionat.
 formulari.addEventListener("submit", event => {
@@ -1435,7 +1636,8 @@ function prepararEdicio(ex) {
 
   botoDesar.textContent = "Desar canvis";
   botoCancelar.hidden = false;
-
+  contenidorFormulariExercici.hidden = false;
+  botoMostrarFormulariExercici.textContent = "Cancel·lar";
   campsExercici.forEach(camp => {
     camp.checked = (ex.camps || []).includes(camp.value);
   });
@@ -1474,6 +1676,8 @@ function cancel·larEdicio() {
   campsExercici.forEach(camp => {
     camp.checked = false;
   });
+  contenidorFormulariExercici.hidden = true;
+  botoMostrarFormulariExercici.textContent = "+ Afegir exercici";
 }
 
 botoCancelar.addEventListener("click", cancel·larEdicio);
@@ -2262,8 +2466,9 @@ const botoBiblioteca = document.getElementById("boto-biblioteca");
 const panellBiblioteca = document.getElementById("panell-biblioteca");
 const botoGestioDades = document.getElementById("boto-gestio-dades");
 const panellGestioBiblioteca = document.getElementById("panell-gestio-biblioteca");
+const botoRegistres = document.getElementById("boto-registres");
+const panellRegistres = document.getElementById("panell-registres");
 const panellCopiaSeguretat = document.getElementById("panell-copia-seguretat");
-const panellEstadistiques = document.getElementById("panell-estadistiques");
 const botoUltimEntrenament = document.getElementById("boto-ultim-entrenament");
 const panellUltimEntrenament = document.getElementById("ultim-entrenament");
 const botoCalendari = document.getElementById("boto-calendari");
@@ -2275,7 +2480,7 @@ function tancarPanellsSecundaris() {
   panellBiblioteca.hidden = true;
   panellGestioBiblioteca.hidden = true;
   panellCopiaSeguretat.hidden = true;
-  panellEstadistiques.hidden = true;
+  panellRegistres.hidden = true;
   panellUltimEntrenament.hidden = true;
   panellCalendari.hidden = true;
 }
@@ -2285,6 +2490,7 @@ function actualitzarMenuActiu(botoActiu = null) {
     botoCalendari,
     botoUltimEntrenament,
     botoBiblioteca,
+    botoRegistres,
     botoGestioDades
   ];
 
@@ -2324,11 +2530,23 @@ botoGestioDades.addEventListener("click", () => {
   tancarPanellsSecundaris();
   panellGestioBiblioteca.hidden = !mostrar;
   panellCopiaSeguretat.hidden = !mostrar;
-  panellEstadistiques.hidden = !mostrar;
+
+  actualitzarMenuActiu(mostrar ? botoGestioDades : null);
+});
+
+// Obrir i tancar els registres
+botoRegistres.addEventListener("click", () => {
+  const mostrar = panellRegistres.hidden;
+
+  tancarPanellsSecundaris();
+  panellRegistres.hidden = !mostrar;
+
   if (mostrar) {
+    mostrarMaximes();
     mostrarEstadistiques();
   }
-  actualitzarMenuActiu(mostrar ? botoGestioDades : null);
+
+  actualitzarMenuActiu(mostrar ? botoRegistres : null);
 });
 
 // Obrir i tancar l'últim entrenament

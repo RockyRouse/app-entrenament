@@ -1991,7 +1991,7 @@ botoExportarExcel.addEventListener("click", async () => {
       variant: camps.includes("variant") ? "Sí" : "No",
       distancia: camps.includes("distancia") ? "Sí" : "No",
       comentari: camps.includes("comentari") ? "Sí" : "No",
-      color: ex.color || ""
+      color: convertirColorCategoria(ex.color)
     });
   });
 
@@ -2082,15 +2082,15 @@ for (let fila = 2; fila <= 1000; fila++) {
   }
 }
 
-// Llista desplegable per al color.
+// Llista desplegable per a la categoria.
 for (let fila = 2; fila <= 1000; fila++) {
   full.getCell(`N${fila}`).dataValidation = {
     type: "list",
     allowBlank: true,
     showErrorMessage: true,
     errorStyle: "stop",
-    error: "Selecciona un color de la llista.",
-    formulae: ['"blau,verd,vermell,taronja,groc,lila,turquesa,rosa"']
+    error: "Selecciona una categoria de la llista.",
+    formulae: ['"ABS,Força,Màxima,Explosiu,Mobilitat,WOD,Cames,Calories"']
   };
 }
 
@@ -2172,6 +2172,39 @@ function obtenirCampsExcel(fila) {
   return camps;
 }
 
+// Convertim els colors interns en categories visibles a Excel.
+function convertirColorCategoria(color) {
+  const equivalencies = {
+    "blau": "ABS",
+    "verd": "Força",
+    "vermell": "Màxima",
+    "taronja": "Explosiu",
+    "groc": "Mobilitat",
+    "lila": "WOD",
+    "turquesa": "Cames",
+    "rosa": "Calories"
+  };
+
+  return equivalencies[color] || "";
+}
+
+// Convertim les categories d'Excel als colors interns.
+function convertirCategoriaExcel(valor) {
+  const equivalencies = {
+    "abs": "blau",
+    "força": "verd",
+    "màxima": "vermell",
+    "explosiu": "taronja",
+    "mobilitat": "groc",
+    "wod": "lila",
+    "cames": "turquesa",
+    "calories": "rosa"
+  };
+
+  const text = String(valor || "").trim().toLocaleLowerCase("ca");
+
+  return equivalencies[text] || text;
+}
 
 // Convertim una fila d'Excel en un exercici.
 function convertirFilaExcel(fila) {
@@ -2189,7 +2222,7 @@ function convertirFilaExcel(fila) {
       : Number(fila.getCell("G").value),
     unitatDurada: obtenirTextCel·la(fila, "H"),
     camps: obtenirCampsExcel(fila),
-    color: obtenirTextCel·la(fila, "N") || ""
+    color: convertirCategoriaExcel(obtenirTextCel·la(fila, "N"))
   };
 }
 
